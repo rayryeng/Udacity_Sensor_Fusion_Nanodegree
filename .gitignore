@@ -43,4 +43,9 @@ build/
 
 # Mac OS Specific
 .DS_Store
+
+# Files from virtual workspace
+# that shouldn't be part of this repo
+*.student_bashrc
+
 # End of https://www.gitignore.io/api/c++
