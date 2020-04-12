@@ -87,7 +87,7 @@ $ ./quizCluster
 ## Camera Course
 
 OpenCV must be installed on your system prior to building.  On Linux, you can simply follow: https://www.learnopencv.com/install-opencv-4-on-ubuntu-16-04/.
-On Mac OS, you can install OpenCV through Homebrew `https://formulae.brew.sh/formula/opencv`,
+On Mac OS, you can install OpenCV through Homebrew https://formulae.brew.sh/formula/opencv,
 specifically with `brew install opencv`.  On Windows, you can download pre-compiled binaries
 from the official website: https://opencv.org/releases/
 
@@ -108,7 +108,7 @@ can be accessed.
 
 ### Intro to Time to Collision (TTC) Exercises
 
-Navigate to the `SFND_Camera/TTC_Camera` directory, then build it:
+Navigate to the `SFND_Camera/TTC_Camera/TTC_camera` directory, then build it:
 
 ```
 $ cd SFND_Camera/TTC_Camera/TTC_camera
@@ -125,3 +125,48 @@ can be accessed.
 bounds errors.  This is because the provided source code to parse the
 data files to get the keypoints does not function properly, thus resulting
 in negative indices for accessing a `std::vector` thus causing the crash.
+
+### Intensity Gradient and Filtering Exercise
+Navigate to the `SFND_Camera/intensity_gradient_filtering/gradient_filtering`
+directory, then build it:
+
+```
+$ cd SFND_Camera/intensity_gradient_filtering/gradient_filtering
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+This will create three executables for you to run.  Additionally, there are
+solutions from the instructor in `SFND_Camera/intensity_gradient_filtering/solutions` that
+can be accessed.
+
+**Note:** The instructor used double `for` loops for some of the solutions where I opted
+to use built-in OpenCV methods and operations (such as computing the gradient magnitude).
+Built-in operations using the `cv::Mat` class are faster as they are designed to operate
+on these datatypes and are multi-threaded when applicable.
+
+### Harris Corner Detector Exercise
+
+Navigate to the `SFND_Camera/harris_corner_nms/cornerness_harris` directory then build it:
+
+```
+$ cd SFND_Camera/harris_corner_nms/cornerness_harris
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+This will create an executable for you to run.  Additionally, there are
+solutions from the instructor in
+`SFND_Camera/harris_corner_nms/cornerness_harris/solution` that can
+be accessed.
+
+**Note:** The instructor's solution use the `cv::KeyPoint::overlap()` method
+to perform non-maximum suppression.  In particular, keypoints can only exist
+if the particular keypoint within a finite window have the strongest response
+over all points that overlap with said keypoint.  I approached this differently
+where within a finite window, we search for the largest response and the centre
+of the window should have this response.  If and only if the largest response
+in the centre of this window is the largest do we keep this keypoint.  This amounts
+to the same principle, but I felt that I approached it more sanely.
