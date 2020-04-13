@@ -27,8 +27,9 @@ using namespace std;
 // argv[2] --> descriptorType: BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
 // argv[3] --> bVis (visualising results): 0/1
 // argv[4] --> bLimitKpts (for limiting keypoint reuslts): 0/1
+// argv[5] --> bFocusOnVehicle (to concentrate on vehicle from KITTI dataset): 0/1
 // Defaults if you don't specify any command-line args
-// SHITOMASI, BRISK, bVis=true
+// SHITOMASI, BRISK, bVis=true, bLimitKpts=true
 
 int main(int argc, const char* argv[]) {
 
@@ -37,35 +38,32 @@ int main(int argc, const char* argv[]) {
   ////////// Command-line args
   // SHITOMASI, HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
   string detectorType = "SHITOMASI";
-  if (argc >= 2) {
-    detectorType = string(argv[1]);
-  }
+  if (argc >= 2) { detectorType = string(argv[1]); }
 
   // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
   string descriptorType = "BRISK";
-  if (argc >= 3) {
-    descriptorType = string(argv[2]);
-  }
+  if (argc >= 3) { descriptorType = string(argv[2]); }
 
   // For visualization / debugging
   string bVisTemp = "1";
-  if (argc >= 4) {
-    bVisTemp = string(argv[3]);
-  }
+  if (argc >= 4) { bVisTemp = string(argv[3]); }
   const bool bVis = stoi(bVisTemp) == 1;
 
   // For limiting keypoints visualization
   bVisTemp = "1";
-  if (argc >= 5) {
-    bVisTemp = string(argv[4]);
-  }
+  if (argc >= 5) { bVisTemp = string(argv[4]); }
   const bool bLimitKpts = stoi(bVisTemp) == 1;
+
+  bVisTemp = "1";
+  if (argc >= 5) { bVisTemp = string(argv[5]); }
+  const bool bFocusOnVehicle = stoi(bVisTemp) == 1;
 
   cout << "=== Options ===\n";
   cout << "Detector Type: " << detectorType;
   cout << "\nDescriptor Type: " << descriptorType;
   cout << "\nVisualization: " << bVis;
-  cout << "\nLimit keypoints visualization: " << bLimitKpts << "\n\n";
+  cout << "\nLimit keypoints visualization: " << bLimitKpts;
+  cout << "\nFocus on vehicle: " << bFocusOnVehicle << "\n\n";
 
   // data location
   string dataPath = "../";
@@ -144,10 +142,19 @@ int main(int argc, const char* argv[]) {
     //// TASK MP.3 -> only keep keypoints on the preceding vehicle
 
     // only keep keypoints on the preceding vehicle
-    bool bFocusOnVehicle = true;
     cv::Rect vehicleRect(535, 180, 180, 150);
     if (bFocusOnVehicle) {
-      // ...
+      // Erase-Remove idiom on a std::vector
+      keypoints.erase(
+          std::remove_if(
+              keypoints.begin(), keypoints.end(),
+              [&vehicleRect](const cv::KeyPoint& point) {
+                return point.pt.x < vehicleRect.x ||
+                       point.pt.y < vehicleRect.y ||
+                       point.pt.x > (vehicleRect.x + vehicleRect.width) ||
+                       point.pt.y > (vehicleRect.y + vehicleRect.height);
+              }),
+          keypoints.end());
     }
 
     //// EOF STUDENT ASSIGNMENT
