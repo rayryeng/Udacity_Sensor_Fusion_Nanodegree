@@ -220,3 +220,21 @@ This will create an executable for you to run.  Additionally, there are
 solutions from the instructor in
 `SFND_Camera/descriptor_matching/descriptor_matching/solution` that can
 be accessed.
+
+### Midterm Project
+
+In order to track commits (unlike the first project where I forked the
+project and just put everything in as one commit), I've cloned the
+original midterm project repo from here:
+https://github.com/udacity/SFND_2D_Feature_Tracking.  Please ensure that you
+have the right dependencies installed by looking at this repo prior to building.
+Navigate to the `SFND_Camera/SFND_2D_Feature_Tracking` directory then build it:
+
+```
+$ cd SFND_Camera/SFND_2D_Feature_Tracking
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+This will create an executable for you to run.
