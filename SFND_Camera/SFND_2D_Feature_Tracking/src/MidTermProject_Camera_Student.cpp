@@ -19,9 +19,53 @@
 using namespace std;
 
 /* MAIN PROGRAM */
+// Edit by Ray
+// We will take in command-line args that will help us change between
+// the detectors and descriptors to prevent constant recompilation
+// argv[0] --> Program
+// argv[1] --> detectorType: SHITOMASI, HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
+// argv[2] --> descriptorType: BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
+// argv[3] --> bVis (visualising results): 0/1
+// argv[4] --> bLimitKpts (for limiting keypoint reuslts): 0/1
+// Defaults if you don't specify any command-line args
+// SHITOMASI, BRISK, bVis=true
+
 int main(int argc, const char* argv[]) {
 
   /* INIT VARIABLES AND DATA STRUCTURES */
+
+  ////////// Command-line args
+  // SHITOMASI, HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
+  string detectorType = "SHITOMASI";
+  if (argc >= 2) {
+    detectorType = string(argv[1]);
+  }
+
+  // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
+  string descriptorType = "BRISK";
+  if (argc >= 3) {
+    descriptorType = string(argv[2]);
+  }
+
+  // For visualization / debugging
+  string bVisTemp = "1";
+  if (argc >= 4) {
+    bVisTemp = string(argv[3]);
+  }
+  const bool bVis = stoi(bVisTemp) == 1;
+
+  // For limiting keypoints visualization
+  bVisTemp = "1";
+  if (argc >= 5) {
+    bVisTemp = string(argv[4]);
+  }
+  const bool bLimitKpts = stoi(bVisTemp) == 1;
+
+  cout << "=== Options ===\n";
+  cout << "Detector Type: " << detectorType;
+  cout << "\nDescriptor Type: " << descriptorType;
+  cout << "\nVisualization: " << bVis;
+  cout << "\nLimit keypoints visualization: " << bLimitKpts << "\n\n";
 
   // data location
   string dataPath = "../";
@@ -42,7 +86,6 @@ int main(int argc, const char* argv[]) {
   int dataBufferSize = 2;
   // list of data frames which are held in memory at the same time
   vector<DataFrame> dataBuffer;
-  bool bVis = false;  // visualize results
 
   /* MAIN LOOP OVER ALL IMAGES */
 
@@ -83,16 +126,17 @@ int main(int argc, const char* argv[]) {
     // extract 2D keypoints from current image
     // create empty feature list for current image
     vector<cv::KeyPoint> keypoints;
-    string detectorType = "SHITOMASI";
 
     //// STUDENT ASSIGNMENT
     //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
     //// -> HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
 
     if (detectorType.compare("SHITOMASI") == 0) {
-      detKeypointsShiTomasi(keypoints, imgGray, false);
+      detKeypointsShiTomasi(keypoints, imgGray, bVis);
+    } else if (detectorType == "HARRIS") {
+      detKeypointsHarris(keypoints, imgGray, bVis);
     } else {
-      //...
+      detKeypointsModern(keypoints, imgGray, detectorType, bVis);
     }
     //// EOF STUDENT ASSIGNMENT
 
@@ -109,7 +153,6 @@ int main(int argc, const char* argv[]) {
     //// EOF STUDENT ASSIGNMENT
 
     // optional : limit number of keypoints (helpful for debugging and learning)
-    bool bLimitKpts = false;
     if (bLimitKpts) {
       int maxKeypoints = 50;
 
@@ -132,7 +175,6 @@ int main(int argc, const char* argv[]) {
     //// -> BRIEF, ORB, FREAK, AKAZE, SIFT
 
     cv::Mat descriptors;
-    string descriptorType = "BRISK";  // BRIEF, ORB, FREAK, AKAZE, SIFT
     descKeypoints((dataBuffer.end() - 1)->keypoints,
                   (dataBuffer.end() - 1)->cameraImg, descriptors,
                   descriptorType);
@@ -171,7 +213,6 @@ int main(int argc, const char* argv[]) {
       cout << "#4 : MATCH KEYPOINT DESCRIPTORS done" << endl;
 
       // visualize matches between current and previous image
-      bVis = true;
       if (bVis) {
         cv::Mat matchImg = ((dataBuffer.end() - 1)->cameraImg).clone();
         cv::drawMatches((dataBuffer.end() - 2)->cameraImg,
@@ -188,7 +229,6 @@ int main(int argc, const char* argv[]) {
         cout << "Press key to continue to next image" << endl;
         cv::waitKey(0);  // wait for key to be pressed
       }
-      bVis = false;
     }
 
   }  // eof loop over all images
