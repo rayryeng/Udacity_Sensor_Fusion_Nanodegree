@@ -91,6 +91,8 @@ On Mac OS, you can install OpenCV through Homebrew https://formulae.brew.sh/form
 specifically with `brew install opencv`.  On Windows, you can download pre-compiled binaries
 from the official website: https://opencv.org/releases/
 
+Navigate to the `SFND_Camera/` directory to access the exercises and projects for this course.
+
 ### Intro to OpenCV Exercises
 
 Navigate to the `SFND_Camera/intro_to_opencv_exercises/OpenCV_exercises` directory, then build it:
@@ -201,4 +203,20 @@ $ make
 This will create an executable for you to run.  Additionally, there are
 solutions from the instructor in
 `SFND_Camera/describe_keypoints/describe_keypoints/solution` that can
+be accessed.
+
+### Descriptor Keypoint Matching Exercise
+
+Navigate to the `SFND_Camera/descriptor_matching/descriptor_matching` directory then build it:
+
+```
+$ cd SFND_Camera/descriptor_matching/descriptor_matching
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+This will create an executable for you to run.  Additionally, there are
+solutions from the instructor in
+`SFND_Camera/descriptor_matching/descriptor_matching/solution` that can
 be accessed.
