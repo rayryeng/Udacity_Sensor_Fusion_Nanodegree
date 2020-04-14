@@ -16,29 +16,55 @@ void matchDescriptors(std::vector<cv::KeyPoint>& kPtsSource,
   bool crossCheck = false;
   cv::Ptr<cv::DescriptorMatcher> matcher;
 
+  // Keep copies if we need to convert
+  cv::Mat descSourceFloat = descSource.clone();
+  cv::Mat descRefFloat = descRef.clone();
+
   if (matcherType.compare("MAT_BF") == 0) {
-    int normType = cv::NORM_HAMMING;
+    // Change to accommodate for content of descriptor
+    const int normType =
+        descriptorType == "DES_HOG" ? cv::NORM_L2 : cv::NORM_HAMMING;
     matcher = cv::BFMatcher::create(normType, crossCheck);
   } else if (matcherType.compare("MAT_FLANN") == 0) {
-    // ...
+    // Taken from previous exercises
+    // OpenCV bug workaround : convert binary descriptors to floating point due to a bug in current OpenCV implementation
+    if (descSource.type() != CV_32F) {
+      descSourceFloat.convertTo(descSourceFloat, CV_32F);
+      descRefFloat.convertTo(descRefFloat, CV_32F);
+    }
+    matcher = cv::DescriptorMatcher::create(cv::DescriptorMatcher::FLANNBASED);
   }
 
   // perform matching task
   if (selectorType.compare("SEL_NN") == 0) {  // nearest neighbor (best match)
-    // Finds the best match for each descriptor in desc1
-    matcher->match(descSource, descRef, matches);
+    // Finds the best match for each descriptor in descSource
+    matcher->match(descSourceFloat, descRefFloat, matches);
   }  // k nearest neighbors (k=2)
   else if (selectorType.compare("SEL_KNN") == 0) {
+    // Taken from previous exercises
+    std::vector<std::vector<cv::DMatch>> knn_matches;
+    matcher->knnMatch(descSourceFloat, descRefFloat, knn_matches, 2);
 
-    // ...
+    // Filter matches using descriptor distance ratio test
+    for (int i = 0; i < knn_matches.size(); i++) {
+      const float dist1 = knn_matches[i][0].distance;
+      const float dist2 = knn_matches[i][1].distance;
+      if ((dist1 / dist2) < 0.8) {
+        // Push the best match between the two matches
+        // if we are lower than the threshold
+        matches.push_back(knn_matches[i][0]);
+      }
+    }
   }
 }
 
 // Use one of several types of state-of-art descriptors to uniquely identify keypoints
-void descKeypoints(vector<cv::KeyPoint>& keypoints,
-                   cv::Mat& img,
-                   cv::Mat& descriptors,
-                   string descriptorType) {
+// BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
+// Changed signature to output the timing of the computation
+double descKeypoints(vector<cv::KeyPoint>& keypoints,
+                     cv::Mat& img,
+                     cv::Mat& descriptors,
+                     string descriptorType) {
   // select appropriate descriptor
   cv::Ptr<cv::DescriptorExtractor> extractor;
   if (descriptorType.compare("BRISK") == 0) {
@@ -49,9 +75,18 @@ void descKeypoints(vector<cv::KeyPoint>& keypoints,
     float patternScale = 1.0f;
 
     extractor = cv::BRISK::create(threshold, octaves, patternScale);
+  } else if (descriptorType == "BRIEF") {
+    extractor = cv::xfeatures2d::BriefDescriptorExtractor::create();
+  } else if (descriptorType == "ORB") {
+    extractor = cv::ORB::create();
+  } else if (descriptorType == "FREAK") {
+    extractor = cv::xfeatures2d::FREAK::create();
+  } else if (descriptorType == "AKAZE") {
+    extractor = cv::AKAZE::create();
+  } else if (descriptorType == "SIFT") {
+    extractor = cv::xfeatures2d::SIFT::create();
   } else {
-
-    //...
+    return 0.0;
   }
 
   // perform feature description
@@ -60,12 +95,14 @@ void descKeypoints(vector<cv::KeyPoint>& keypoints,
   t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
   cout << descriptorType << " descriptor extraction in " << 1000 * t / 1.0
        << " ms" << endl;
+  return t;
 }
 
 // Detect keypoints in image using the traditional Shi-Thomasi detector
-void detKeypointsShiTomasi(vector<cv::KeyPoint>& keypoints,
-                           cv::Mat& img,
-                           bool bVis) {
+// Changed signature to output the timing of the computation
+double detKeypointsShiTomasi(vector<cv::KeyPoint>& keypoints,
+                             cv::Mat& img,
+                             bool bVis) {
   // compute detector parameters based on image size
   //  size of an average block for computing a derivative covariation matrix over each pixel neighborhood
   int blockSize = 4;
@@ -106,12 +143,14 @@ void detKeypointsShiTomasi(vector<cv::KeyPoint>& keypoints,
     cout << "Press any key to continue\n";
     cv::waitKey(0);
   }
+  return t;
 }
 
 // Added in by Ray from the previous exercises
-void detKeypointsHarris(vector<cv::KeyPoint>& keypoints,
-                        cv::Mat& img,
-                        bool bVis) {
+// Changed signature to output the timing of the computation
+double detKeypointsHarris(vector<cv::KeyPoint>& keypoints,
+                          cv::Mat& img,
+                          bool bVis) {
 
   // Detector parameters
   // for every pixel, a blockSize × blockSize neighborhood is considered
@@ -180,13 +219,15 @@ void detKeypointsHarris(vector<cv::KeyPoint>& keypoints,
     cout << "Press any key to continue\n";
     cv::waitKey(0);
   }
+  return t;
 }
 
 // For the remaining detector types: FAST, BRISK, ORB, AKAZE, SIFT
-void detKeypointsModern(std::vector<cv::KeyPoint>& keypoints,
-                        cv::Mat& img,
-                        std::string detectorType,
-                        bool bVis) {
+// Changed signature to output the timing of the computation
+double detKeypointsModern(std::vector<cv::KeyPoint>& keypoints,
+                          cv::Mat& img,
+                          std::string detectorType,
+                          bool bVis) {
 
   // Stores created detector here
   cv::Ptr<cv::FeatureDetector> detector;
@@ -210,7 +251,7 @@ void detKeypointsModern(std::vector<cv::KeyPoint>& keypoints,
   } else if (detectorType == "SIFT") {
     detector = cv::xfeatures2d::SIFT::create();
   } else {
-    return;
+    return 0.0;
   }
 
   // Detect the keypoints
@@ -231,4 +272,5 @@ void detKeypointsModern(std::vector<cv::KeyPoint>& keypoints,
     cout << "Press any key to continue\n";
     cv::waitKey(0);
   }
+  return t;
 }
