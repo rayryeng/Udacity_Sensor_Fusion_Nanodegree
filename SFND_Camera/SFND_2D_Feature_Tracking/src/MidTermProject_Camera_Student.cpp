@@ -31,7 +31,7 @@ using namespace std;
 // argv[6] --> bLimitKpts (for limiting keypoint results): 0/1
 // argv[7] --> bFocusOnVehicle (to concentrate on vehicle from KITTI dataset): 0/1
 // Defaults if you don't specify any command-line args
-// SHITOMASI, BRISK, MAT_BF, DES_BINARY, bVis=true, bLimitKpts=true, bFocusOnVehicle=true
+// SHITOMASI, BRISK, MAT_BF, DES_BINARY, SEL_NN, bVis=true, bLimitKpts=false, bFocusOnVehicle=true
 
 int main(int argc, const char* argv[]) {
 
@@ -45,6 +45,15 @@ int main(int argc, const char* argv[]) {
   // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
   string descriptorType = "BRISK";
   if (argc >= 3) { descriptorType = string(argv[2]); }
+
+  if ((detectorType == "AKAZE" || descriptorType == "AKAZE") &&
+      detectorType != descriptorType) {
+    cout << "Warning - using AKAZE as the detector is only compatible with"
+         << " AKAZE as the descriptor\nSwitching both detector and descriptor"
+         << " to AKAZE\n\n";
+    detectorType = "AKAZE";
+    descriptorType = "AKAZE";
+  }
 
   // Descriptor and matcher strings for configuration
   // MAT_BF, MAT_FLANN
@@ -65,7 +74,7 @@ int main(int argc, const char* argv[]) {
   const bool bVis = stoi(strToParse) == 1;
 
   // For limiting keypoints visualization
-  strToParse = "1";
+  strToParse = "0";
   if (argc >= 7) { strToParse = string(argv[6]); }
   const bool bLimitKpts = stoi(strToParse) == 1;
 
@@ -96,6 +105,11 @@ int main(int argc, const char* argv[]) {
   int imgEndIndex = 9;  // last file index to load
   // no. of digits which make up the file index (e.g. img-0001.png)
   int imgFillWidth = 4;
+
+  // These output strings are to answer MP7 and MP8 for a specific
+  // combination of keypoint detector and descriptor
+  string outputStringForMP7 = "| ";
+  string outputStringForMP8 = "";
 
   // misc
   // no. of images which are held in memory (ring buffer) at the same time
@@ -177,6 +191,9 @@ int main(int argc, const char* argv[]) {
                                   return !vehicleRect.contains(point.pt);
                                 }),
                       keypoints.end());
+      cout << "Number of keypoints remaining after limiting to preceding "
+              "vehicle: " << keypoints.size() << "\n";
+      outputStringForMP7 += to_string(keypoints.size()) + " | ";
     }
 
     //// EOF STUDENT ASSIGNMENT
@@ -222,7 +239,6 @@ int main(int argc, const char* argv[]) {
       //// STUDENT ASSIGNMENT
       //// TASK MP.5 -> add FLANN matching in file matching2D.cpp
       //// TASK MP.6 -> add KNN match selection and perform descriptor distance ratio filtering with t=0.8 in file matching2D.cpp
-
       matchDescriptors((dataBuffer.end() - 2)->keypoints,
                        (dataBuffer.end() - 1)->keypoints,
                        (dataBuffer.end() - 2)->descriptors,
@@ -235,6 +251,10 @@ int main(int argc, const char* argv[]) {
       (dataBuffer.end() - 1)->kptMatches = matches;
 
       cout << "#4 : MATCH KEYPOINT DESCRIPTORS done" << endl;
+
+      // Added by Ray to display the number of matches
+      cout << "Number of matched keypoints: " << matches.size() << "\n";
+      outputStringForMP8 += to_string(matches.size()) + ",";
 
       // visualize matches between current and previous image
       if (bVis) {
@@ -262,6 +282,12 @@ int main(int argc, const char* argv[]) {
 
   cout << "\n***** Final Aggregated Timings *****\n";
   cout << "Detector Time: " << 1000 * detector_time << " ms";
-  cout << "\nDescriptor Time: " << 1000*descriptor_time << " ms\n";
+  cout << "\nDescriptor Time: " << 1000 * descriptor_time << " ms\n";
+  if (bFocusOnVehicle) {
+    outputStringForMP7.pop_back();
+    cout << "Output string for MP7 answer: " << outputStringForMP7 << "\n";
+  }
+  outputStringForMP8.pop_back();
+  cout << "Output string for MP8 answer: " << outputStringForMP8 << "\n";
   return 0;
 }

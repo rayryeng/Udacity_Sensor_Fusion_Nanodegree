@@ -13,7 +13,7 @@ void matchDescriptors(std::vector<cv::KeyPoint>& kPtsSource,
                       std::string matcherType,
                       std::string selectorType) {
   // configure matcher
-  bool crossCheck = false;
+  bool crossCheck = true;
   cv::Ptr<cv::DescriptorMatcher> matcher;
 
   // Keep copies if we need to convert
