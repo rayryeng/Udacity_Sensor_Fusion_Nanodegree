@@ -2,7 +2,17 @@
 
 This contains my homework assignments and quiz solutions for the programming
 portions of this nanodegree. They will be partitioned into separate directories,
-one for each course. Each course will have separate build instructions.
+one for each course. Each course will have separate build instructions.  Please
+note that I have also included the YOLOv3 weights from the Camera course as
+part of this repo.  Once you clone the repo, in the repo directory please use
+the following to download the YOLOv3 weights.
+
+```
+$ cd <path to this repo>
+$ git lfs fetch
+```
+
+The weights will appear in `SFND_Camera/detect_objects/dat/yolo/yolov3.weights`
 
 # Instructions for building and running
 
