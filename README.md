@@ -228,10 +228,40 @@ project and just put everything in as one commit), I've cloned the
 original midterm project repo from here:
 https://github.com/udacity/SFND_2D_Feature_Tracking.  Please ensure that you
 have the right dependencies installed by looking at this repo prior to building.
-Navigate to the `SFND_Camera/SFND_2D_Feature_Tracking` directory then build it:
+Navigate to the `SFND_Camera/SFND_2D_Feature_Matching` directory then build it:
 
 ```
-$ cd SFND_Camera/SFND_2D_Feature_Tracking
+$ cd SFND_Camera/SFND_2D_Feature_Matching
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+This will create an executable for you to run.  This executable takes in
+command-line arguments.  Please review the midterm report README for more
+details in `SFND_Camera/SFND_2D_Feature_Matching/README_Midterm_Report.md`.
+
+### LiDAR to Camera Exercise
+
+Navigate to the `SFND_Camera/lidar_to_camera/lidar_to_camera` directory then build it:
+
+```
+$ cd SFND_Camera/lidar_to_camera/lidar_to_camera
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+This will create an executable for you to run.  Additionally, there are
+solutions from the instructor in `SFND_Camera/lidar_to_camera/solution`
+that can be accessed.
+
+### Detect Objects Exercise
+
+Navigate to the `SFND_Camera/detect_objects` directory then build it:
+
+```
+$ cd SFND_Camera/detect_objects
 $ mkdir build && cd build
 $ cmake ..
 $ make
