@@ -278,3 +278,16 @@ $ make
 ```
 
 This will create an executable for you to run.
+
+### Cluster with ROI Exercise
+
+Navigate to the `SFND_Camera/cluster_with_roi` directory then build it:
+
+```
+$ cd SFND_Camera/cluster_with_roi
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+This will create an executable for you to run.
