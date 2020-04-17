@@ -4,7 +4,9 @@ This contains my homework assignments and quiz solutions for the programming
 portions of this nanodegree. They will be partitioned into separate directories,
 one for each course. Each course will have separate build instructions.  Please
 note that I have also included the YOLOv3 weights from the Camera course as
-part of this repo.  Once you clone the repo, in the repo directory please use
+part of this repo.  You will need Git LFS to download the weights.
+Please visit https://github.com/git-lfs/git-lfs/wiki/Installation to install
+Git LFS.  Once you do, clone the repo and in the repo directory please use
 the following to download the YOLOv3 weights.
 
 ```
@@ -120,7 +122,8 @@ can be accessed.
 
 ### Intro to Time to Collision (TTC) Exercises
 
-Navigate to the `SFND_Camera/TTC_Camera/TTC_camera` directory, then build it:
+For the camera-based solution, navigate to the 
+`SFND_Camera/TTC_Camera/TTC_camera` directory, then build it:
 
 ```
 $ cd SFND_Camera/TTC_Camera/TTC_camera
@@ -137,6 +140,16 @@ can be accessed.
 bounds errors.  This is because the provided source code to parse the
 data files to get the keypoints does not function properly, thus resulting
 in negative indices for accessing a `std::vector` thus causing the crash.
+
+For the LiDAR-based solution, navigate to the
+`SFND_Camera/TTC_lidar` directory, then build it:
+
+```
+$ cd SFND_Camera/TTC_lidar
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
 
 ### Intensity Gradient and Filtering Exercise
 Navigate to the `SFND_Camera/intensity_gradient_filtering/gradient_filtering`
