@@ -177,6 +177,12 @@ int main(int argc, const char* argv[]) {
   // list of data frames which are held in memory at the same time
   vector<DataFrame> dataBuffer;
 
+  // Stores TTC results for the camera-based method
+  vector<pair<int, double>> ttc_results_camera;
+
+  // Stores TTC results for the LiDAR-based method
+  vector<pair<int, double>> ttc_results_lidar;
+
   /* MAIN LOOP OVER ALL IMAGES */
 
   for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex;
@@ -221,7 +227,7 @@ int main(int argc, const char* argv[]) {
     // load 3D Lidar points from file
     string lidarFullFilename =
         imgBasePath + lidarPrefix + imgNumber.str() + lidarFileType;
-    std::vector<LidarPoint> lidarPoints;
+    vector<LidarPoint> lidarPoints;
     loadLidarFromFile(lidarPoints, lidarFullFilename);
 
     // remove Lidar points based on distance properties
@@ -360,6 +366,7 @@ int main(int argc, const char* argv[]) {
           double ttcLidar;
           computeTTCLidar(prevBB->lidarPoints, currBB->lidarPoints,
                           sensorFrameRate, ttcLidar);
+          ttc_results_lidar.push_back(make_pair(imgIndex, ttcLidar));
           //// EOF STUDENT ASSIGNMENT
 
           //// STUDENT ASSIGNMENT
@@ -372,6 +379,7 @@ int main(int argc, const char* argv[]) {
           computeTTCCamera((dataBuffer.end() - 2)->keypoints,
                            (dataBuffer.end() - 1)->keypoints,
                            currBB->kptMatches, sensorFrameRate, ttcCamera);
+          ttc_results_camera.push_back(make_pair(imgIndex, ttcCamera));
           //// EOF STUDENT ASSIGNMENT
 
           if (bVis) {
@@ -402,5 +410,13 @@ int main(int argc, const char* argv[]) {
     cv::destroyAllWindows();  // Added
   }                           // eof loop over all images
 
+  cout << "Showing results - Left: Img. Index, Right: TTC LiDAR\n";
+  for (const auto& pr : ttc_results_lidar) {
+    cout << pr.first << "," << pr.second << "\n";
+  }
+  cout << "Showing results - Left: Img. Index, Right: TTC Camera\n";
+  for (const auto& pr : ttc_results_camera) {
+    cout << pr.first << "," << pr.second << "\n";
+  }
   return 0;
 }
