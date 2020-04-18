@@ -17,12 +17,10 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
     // --> queryIdx: index of matched keypoint in prev. frame
     // compute distance ratios between all matched keypoints
     vector<double> distRatios; // stores the distance ratios for all keypoints between curr. and prev. frame
-    std::cout << kptMatches.size() << "\n";
     for (auto it1 = kptMatches.begin(); it1 != kptMatches.end() - 1; ++it1)
     { // outer kpt. loop
 
         // get current keypoint and its matched partner in the prev. frame
-        std::cout << "trainIdx: " << it1->trainIdx << ", queryIdx: " << it1->queryIdx << "\n";
         cv::KeyPoint kpOuterCurr = kptsCurr.at(it1->trainIdx);
         cv::KeyPoint kpOuterPrev = kptsPrev.at(it1->queryIdx);
 
@@ -71,7 +69,6 @@ void computeTTCCamera(std::vector<cv::KeyPoint> &kptsPrev, std::vector<cv::KeyPo
   
     // Get the median
     double medianDistRatio = distRatios[index];
-    std::cout << index << "\n";
   
     // If the size of the vector is even, access the
     // vector at the index previous to it and average
