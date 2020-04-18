@@ -245,7 +245,7 @@ int main(int argc, const char* argv[]) {
     // Visualize 3D objects
     if (bVis) {
       show3DObjects((dataBuffer.end() - 1)->boundingBoxes, cv::Size(4.0, 20.0),
-                    cv::Size(2000, 2000), true);
+                    cv::Size(2000, 2000), bVis);
     }
 
     cout << "#4 : CLUSTER LIDAR POINT CLOUD done" << endl;
@@ -389,7 +389,8 @@ int main(int argc, const char* argv[]) {
             putText(visImg, str, cv::Point2f(80, 50), cv::FONT_HERSHEY_PLAIN, 2,
                     cv::Scalar(0, 0, 255));
 
-            string windowName = "Final Results : TTC";
+            string windowName =
+                "Final Results : TTC - Frame #" + to_string(imgIndex + 1);
             cv::namedWindow(windowName, 4);
             cv::imshow(windowName, visImg);
             cout << "Press key to continue to next frame" << endl;
@@ -398,8 +399,8 @@ int main(int argc, const char* argv[]) {
         }  // eof TTC computation
       }    // eof loop over all BB matches
     }
-
-  }  // eof loop over all images
+    cv::destroyAllWindows();  // Added
+  }                           // eof loop over all images
 
   return 0;
 }

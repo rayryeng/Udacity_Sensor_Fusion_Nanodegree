@@ -4,11 +4,88 @@
 #include <numeric>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <set>  // Added by Ray
 
 #include "camFusion.hpp"
 #include "dataStructures.h"
 
 using namespace std;
+
+namespace {
+// Computes the median of a double vector
+template <typename T>
+T median(const std::vector<T>& vec) {
+  if (vec.empty()) { return 0.0; }
+  std::vector<T> vec_copy = vec;
+  std::sort(vec_copy.begin(), vec_copy.end());
+  size_t index = vec_copy.size() / 2;
+  T med = vec_copy[index];
+  if (vec.size() % 2 == 0) { med = (med + vec_copy[index - 1]) / 2; }
+  return med;
+}
+
+// Calculates outlier interquartile range (IQR) thresholds
+// Returns a pair where the first element is the lower
+// threshold and the second element is the upper threshold
+// The IQR is the difference between the 75th (Q3) and 25th (Q1)
+// percentile.  An outlier is when a value is less than Q1 - 1.5*IQR
+// and greater than Q3 + 1.5*IQR
+template <typename T>
+std::pair<T, T> get_iqr_thresholds(const std::vector<T>& vec) {
+  // 0 1 2 3 4 5 6
+  //       | <-- odd
+  // 7 / 2 = 3 --> [0,3), [4,7)
+  // 0 1 2 3 4 5
+  // 6 / 3 = 2 -- [0,3), [3,6)
+  // Determine where split points are
+  const size_t left_split_point = vec.size() / 2;
+  const size_t right_split_point =
+      vec.size() % 2 == 0 ? left_split_point : left_split_point + 1;
+
+  // Sort the vector
+  std::vector<T> vec_copy = vec;
+  std::sort(vec_copy.begin(), vec_copy.end());
+
+  // Split into left and right halves
+  std::vector<T> lower_half(vec_copy.begin(),
+                            vec_copy.begin() + left_split_point);
+  std::vector<T> upper_half(vec_copy.begin() + right_split_point,
+                            vec_copy.end());
+
+  // Get medians for both to get Q1 and Q3
+  const T q1 = median(lower_half);
+  const T q3 = median(upper_half);
+
+  // Calculate IQR and return thresholds
+  const T iqr = q3 - q1;
+  return make_pair(q1 - 1.5 * iqr, q3 + 1.5 * iqr);
+}
+
+// Check for outliers
+template <typename T>
+bool check_for_outlier(const std::vector<T>& vec, const T val) {
+  pair<T, T> thresholds = get_iqr_thresholds(vec);
+  return val < thresholds.first || val > thresholds.second;
+}
+
+// Check for outliers after the thresholds are computed
+template <typename T>
+bool check_for_outlier(const pair<T, T>& thresholds, const T val) {
+  return val < thresholds.first || val > thresholds.second;
+}
+
+// Remove outliers
+template <typename T>
+void remove_outliers(std::vector<T>& vec) {
+  pair<T, T> thresholds = get_iqr_thresholds(vec);
+  vec.erase(remove_if(vec.begin(), vec.end(),
+                      [&thresholds](const T& val) {
+                        return val < thresholds.first ||
+                               val > thresholds.second;
+                      }),
+            vec.end());
+}
+}  // namespace
 
 // Create groups of Lidar points whose projection into the camera falls into the same bounding box
 void clusterLidarWithROI(std::vector<BoundingBox>& boundingBoxes,
@@ -183,40 +260,19 @@ void clusterKptMatchesWithROI(BoundingBox& boundingBox,
   std::vector<float> curr_distances;
 
   for (size_t i = 0; i < temp_keypoints_prev.size(); i++) {
-    cv::Point2f diff = temp_keypoints_prev[i].pt - prev_mean_pt;
-    prev_distances.push_back(cv::sqrt(diff.x * diff.x + diff.y * diff.y));
-    diff = temp_keypoints_curr[i].pt - curr_mean_pt;
-    curr_distances.push_back(cv::sqrt(diff.x * diff.x + diff.y * diff.y));
+    prev_distances.push_back(
+        cv::norm(temp_keypoints_prev[i].pt - prev_mean_pt));
+    curr_distances.push_back(
+        cv::norm(temp_keypoints_curr[i].pt - curr_mean_pt));
   }
 
-  // Find the mean and standard deviation of these distances
-  float mean_prev_diff =
-      std::accumulate(prev_distances.begin(), prev_distances.end(), 0.0f);
-  float mean_curr_diff =
-      std::accumulate(curr_distances.begin(), curr_distances.end(), 0.0f);
-  float stddev_prev_diff = 0.0, stddev_curr_diff = 0.0;
-
-  for (size_t i = 0; i < prev_distances.size(); i++) {
-    stddev_prev_diff += (prev_distances[i] - mean_prev_diff) *
-                        (prev_distances[i] - mean_prev_diff);
-    stddev_curr_diff += (curr_distances[i] - mean_curr_diff) *
-                        (curr_distances[i] - mean_curr_diff);
-  }
-  stddev_prev_diff = std::sqrt(stddev_prev_diff / (prev_distances.size() - 1));
-  stddev_curr_diff = std::sqrt(stddev_curr_diff / (curr_distances.size() - 1));
-
-  // Finally, go through each and make sure that the corresponding distance
-  // away from the mean is at least within 2*sigma.  If both of them are,
-  // finally update the output structure
+  // Finally, go through each and make sure that they aren't outliers
+  // If both of them aren't, finally update the output structure
+  const pair<float, float> prev_thresholds = get_iqr_thresholds(prev_distances);
+  const pair<float, float> curr_thresholds = get_iqr_thresholds(curr_distances);
   for (size_t i = 0; i < temp_keypoints_prev.size(); i++) {
-    if (std::abs(prev_distances[i] - mean_prev_diff) >
-        2.0f * stddev_prev_diff) {
-      continue;
-    }
-    if (std::abs(curr_distances[i] - mean_curr_diff) >
-        2.0f * stddev_curr_diff) {
-      continue;
-    }
+    if (check_for_outlier(prev_thresholds, prev_distances[i])) { continue; }
+    if (check_for_outlier(curr_thresholds, curr_distances[i])) { continue; }
     boundingBox.keypoints.push_back(temp_keypoints_prev[i]);
     boundingBox.kptMatches.push_back(temp_matches[i]);
   }
@@ -236,7 +292,6 @@ void computeTTCCamera(std::vector<cv::KeyPoint>& kptsPrev,
   // compute distance ratios between all matched keypoints
   // stores the distance ratios for all keypoints between curr. and prev. frame
   vector<double> distRatios;
-  const double minDist = 20.0;  // min. required distance
   // outer kpt. loop
   for (auto it1 = kptMatches.begin(); it1 != kptMatches.end() - 1; ++it1) {
 
@@ -246,7 +301,6 @@ void computeTTCCamera(std::vector<cv::KeyPoint>& kptsPrev,
 
     // inner kpt.-loop
     for (auto it2 = kptMatches.begin() + 1; it2 != kptMatches.end(); ++it2) {
-
       // get next keypoint and its matched partner in the prev. frame
       cv::KeyPoint kpInnerCurr = kptsCurr.at(it2->trainIdx);
       cv::KeyPoint kpInnerPrev = kptsPrev.at(it2->queryIdx);
@@ -255,8 +309,8 @@ void computeTTCCamera(std::vector<cv::KeyPoint>& kptsPrev,
       double distCurr = cv::norm(kpOuterCurr.pt - kpInnerCurr.pt);
       double distPrev = cv::norm(kpOuterPrev.pt - kpInnerPrev.pt);
 
-      if (distPrev > std::numeric_limits<double>::epsilon() &&
-          distCurr >= minDist) {  // avoid division by zero
+      // avoid division by zero
+      if (distPrev > std::numeric_limits<double>::epsilon()) {
         double distRatio = distCurr / distPrev;
         distRatios.push_back(distRatio);
       }
@@ -264,29 +318,20 @@ void computeTTCCamera(std::vector<cv::KeyPoint>& kptsPrev,
   }    // eof outer loop over all matched kpts
 
   // only continue if list of distance ratios is not empty
-  if (distRatios.size() == 0) {
-    TTC = NAN;
-  }
+  if (distRatios.size() == 0) { TTC = NAN; }
 
-  // Find the median ratio to handle outliers
-  // Sort the distances
-  std::sort(distRatios.begin(), distRatios.end());
+  // Remove all outliers
+  remove_outliers(distRatios);
 
-  // Obtain the middle index of the vector
-  const size_t index = distRatios.size() / 2;
+  // Check again for not empty
+  if (distRatios.size() == 0) { TTC = NAN; }
 
-  // Get the median
-  double medianDistRatio = distRatios[index];
-
-  // If the size of the vector is even, access the
-  // vector at the index previous to it and average
-  if (distRatios.size() % 2 == 0) {
-    medianDistRatio = (medianDistRatio + distRatios[index - 1]) / 2.0;
-  }
+  // After removing outliers, find the median ratio
+  const float median_dist_ratio = median(distRatios);
 
   // Now calculate TTC
   const double dT = 1 / frameRate;
-  TTC = -dT / (1 - medianDistRatio);
+  TTC = -dT / (1.0f - median_dist_ratio);
 }
 
 void computeTTCLidar(std::vector<LidarPoint>& lidarPointsPrev,
@@ -301,11 +346,6 @@ void computeTTCLidar(std::vector<LidarPoint>& lidarPointsPrev,
   // find closest distance to Lidar points within ego lane
   double minXPrev, minXCurr;
 
-  // This variable ensures that the most up front point is indeed representative
-  // of the cluster of points where it comes from
-  // Point should be within 2*sigma of the centroid
-  double dist_to_cluster = 2;
-
   // Make copies of the LiDAR points so we can remove outliers
   // if necessary
   std::vector<LidarPoint> lidar_points_prev = lidarPointsPrev;
@@ -316,6 +356,9 @@ void computeTTCLidar(std::vector<LidarPoint>& lidarPointsPrev,
   // Only consider points that are within the lane
   // Keep looping until we know for sure that points are not outliers
   while (true) {
+    if (lidar_points_prev.size() == 0 || lidar_points_curr.size() == 0) {
+      break;  // Safeguard
+    }
     // Records x coordinate closest to the car
     minXPrev = 1e9;
     minXCurr = 1e9;
@@ -354,21 +397,9 @@ void computeTTCLidar(std::vector<LidarPoint>& lidarPointsPrev,
                                     (it.z - mean_z) * (it.z - mean_z)));
     }
 
-    // Calculate mean distance
-    double mean_dist =
-        std::accumulate(distances.begin(), distances.end(), 0.0) /
-        distances.size();
-    // Calculate std. dev.
-    double stddev_dist = 0.0;
-    for (const double val : distances) {
-      stddev_dist += ((val - mean_dist) * (val - mean_dist));
-    }
-    stddev_dist = std::sqrt(stddev_dist / (distances.size() - 1));
-
-    // If this distance is larger than 2*sigma of the distances,
-    // delete and try again
-    if (std::abs(distances[prev_index] - mean_dist) >
-        dist_to_cluster * stddev_dist) {
+    // Check to see if current point is an outlier
+    if (check_for_outlier(distances, distances[prev_index])) {
+      // If it is, remove this point from the point cloud and try again
       lidar_points_prev.erase(lidar_points_prev.begin() + prev_index);
       continue;
     }
@@ -400,27 +431,20 @@ void computeTTCLidar(std::vector<LidarPoint>& lidarPointsPrev,
                                     (it.z - mean_z) * (it.z - mean_z)));
     }
 
-    // Calculate mean distance
-    mean_dist = std::accumulate(distances.begin(), distances.end(), 0.0) /
-                distances.size();
-    // Calculate std.dev
-    stddev_dist = 0.0;
-    for (const double val : distances) {
-      stddev_dist += ((val - mean_dist) * (val - mean_dist));
-    }
-    stddev_dist = std::sqrt(stddev_dist / (distances.size() - 1));
-
-    // If distance of this point to the centroid is larger than 2*sigma
-    // delete and try again
-    if (std::abs(distances[curr_index] - mean_dist) >
-        dist_to_cluster * stddev_dist) {
+    // Check to see if current point is an outlier
+    if (check_for_outlier(distances, distances[curr_index])) {
+      // If it is, remove this point from the point cloud and try again
       lidar_points_curr.erase(lidar_points_curr.begin() + curr_index);
       continue;
     }
     break;
   }
   // compute TTC from both measurements
-  TTC = minXCurr * dT / (minXPrev - minXCurr);
+  if (lidar_points_prev.size() == 0 || lidar_points_curr.size() == 0) {
+    TTC = NAN;
+  } else {
+    TTC = minXCurr * dT / (minXPrev - minXCurr);
+  }
 }
 
 void matchBoundingBoxes(std::vector<cv::DMatch>& matches,
@@ -435,9 +459,6 @@ void matchBoundingBoxes(std::vector<cv::DMatch>& matches,
   // Algorithm
   // Store a map where the key is a pair of indices (boxID_prev, boxID_curr)
   // and the value is the number of times we see this pair existing
-  // We only increment if the keypoint found in the bounding box of the
-  // previous frame overlaps with the bounding box of the next frame by
-  // some threshold, say 50%.
   // For each match
   //    Grab trainIdx (current frame index) and queryIdx (previous frame index)
   //    Use trainIdx to access currFrame.keypoints[trainIdx].pt keypoint
@@ -445,32 +466,12 @@ void matchBoundingBoxes(std::vector<cv::DMatch>& matches,
   //    Figure out which bounding box each keypoint belongs to
   //    for the current frame keypoint using currFrame and the previous
   //    frame keypoint using prevFrame
-  //    Determine IoU between the bounding boxes
-  //    If IoU is larger than a threshold, access the boxID
-  //    for the prevFrame and the currFrame and log into map
-
-  // Define IoU function
-  auto iou = [](const cv::Rect& bbox_a, const cv::Rect& bbox_b) -> double {
-    const double x_a = std::max(bbox_a.x, bbox_b.x);
-    const double y_a = std::max(bbox_a.y, bbox_b.y);
-    const double x_b =
-        std::min(bbox_a.x + bbox_a.width, bbox_b.x + bbox_b.width);
-    const double y_b =
-        std::min(bbox_a.y + bbox_a.height, bbox_b.y + bbox_b.height);
-
-    const double inter_area =
-        std::max(0.0, x_b - x_a + 1) * std::max(0.0, y_b - y_a + 1);
-    const double bbox_a_area = (bbox_a.width + 1) * (bbox_a.height + 1);
-    const double bbox_b_area = (bbox_b.width + 1) * (bbox_b.height + 1);
-    return inter_area / (bbox_a_area + bbox_b_area - inter_area);
-  };
+  //    Log the previous frame and current frame bounding box ID and increment
+  //    into the map.
 
   // Stores counts of overlapping matches between previous and current frame
   std::map<pair<int, int>, int> counts;
 
-  // Thresholds for determining if we have valid tracked bounding boxes
-  const int count_threshold = 10;
-  const double min_iou_overlap = 0.25;
   for (const auto& dm : matches) {
     // Obtain feature points for previous and current frame
     const int curr_idx = dm.trainIdx;
@@ -478,66 +479,72 @@ void matchBoundingBoxes(std::vector<cv::DMatch>& matches,
     const cv::Point2f curr_pt = currFrame.keypoints[curr_idx].pt;
     const cv::Point2f prev_pt = prevFrame.keypoints[prev_idx].pt;
 
-    // Count the number of times each point is contained
-    // in a bounding box over all bounding boxes for their
-    // respective frames
-    int count_prev = 0, count_curr = 0;
-    BoundingBox prev_bbox, curr_bbox;
-    for (const BoundingBox& box : prevFrame.boundingBoxes) {
-      if (box.roi.contains(prev_pt)) {
-        count_prev++;
-        prev_bbox = box;
-      }
-    }
-
-    for (const BoundingBox& box : currFrame.boundingBoxes) {
-      if (box.roi.contains(curr_pt)) {
-        count_curr++;
-        curr_bbox = box;
-      }
-    }
-
-    // We need to see if both counts are just 1 meaning
-    // that the point only appeared within one object
-    // bounding box.
-    if (count_curr == 1 && count_prev == 1) {
-      // Great, so we see that each point corresponds to just
-      // one bounding box.  Now do both of these bounding boxes
-      // overlap in some way?  The distance between successive
-      // frames is quite small so we'd expect that a bounding box
-      // moving in between frames will have a relatively small
-      // displacement so there should be a large overlap
-      // If there's a large overlap, then let's count up
-      // how many times we see this combination
-      if (iou(prev_bbox.roi, curr_bbox.roi) >= min_iou_overlap) {
-        // Get previous and current box ID
-        const int prev_bbox_id = prev_bbox.boxID;
-        const int curr_bbox_id = curr_bbox.boxID;
-
-        // See if we've encountered this combination before
-        std::map<std::pair<int, int>, int>::iterator it =
-            counts.find(std::make_pair(prev_bbox_id, curr_bbox_id));
-        if (it == counts.end()) {
-          // If we haven't, make a new entry to start counting
-          counts.insert(std::pair<std::pair<int, int>, int>(
-              std::make_pair(prev_bbox_id, curr_bbox_id), 0));
-        } else {
-          // If yes, update the entry
-          const int count = it->second;
-          it->second = count + 1;
+    // For each type of point (previous and current), figure out
+    // which bounding boxes from their respective frames contains
+    // this point
+    for (const BoundingBox& prev_bbox : prevFrame.boundingBoxes) {
+      for (const BoundingBox& curr_bbox : currFrame.boundingBoxes) {
+        // Did we find which point each bounding box is contained in?
+        if (prev_bbox.roi.contains(prev_pt) &&
+            curr_bbox.roi.contains(curr_pt)) {
+          const int prev_bbox_id = prev_bbox.boxID;
+          const int curr_bbox_id = curr_bbox.boxID;
+          // See if we've encountered this combination before
+          std::map<std::pair<int, int>, int>::iterator it =
+              counts.find(std::make_pair(prev_bbox_id, curr_bbox_id));
+          if (it == counts.end()) {
+            // If we haven't, make a new entry to start counting
+            counts.insert(std::pair<std::pair<int, int>, int>(
+                std::make_pair(prev_bbox_id, curr_bbox_id), 1));
+          } else {
+            // If yes, update the entry
+            const int count = it->second;
+            it->second = count + 1;
+          }
         }
       }
     }
   }
 
-  // Now go through all box ID pairs to see if there are a significant
-  // number of keypoints between previous and current that would merit
-  // that the bounding boxes correspond to each other
-  // If so, log these
+  // Collect all unique bounding box IDs from the previous frame
+  set<int> prev_ids;
   for (const auto& it : counts) {
-    if (it.second >= count_threshold) {
-      bbBestMatches.insert(
-          std::pair<int, int>(it.first.first, it.first.second));
+    prev_ids.insert(it.first.first);
+  }
+
+  // Now loop over all possible bounding box IDs from the previous frame,
+  // see how many combinations of matches to the current frame we have
+  // then choose the largest one
+  for (const int box_id : prev_ids) {
+    // Records largest amount of matches for a previous box ID
+    // and current box ID pair
+    int max_count = -1;
+
+    // Stores the current bounding box ID with the largest matches
+    int curr_box_id = -1;
+
+    // Go through each pair of bounding boxes with
+    // matches - make sure we concentrate on the one
+    // where the previous bounding box ID matches what
+    // we're currently iterating over
+    for (const auto& it : counts) {
+      // If this isn't the previous bounding box ID
+      // we're concentrating on, skip
+      if (it.first.first != box_id) { continue; }
+
+      // If this prev., curr. pair has a count
+      // that exceeds the max...
+      if (it.second > max_count) {
+        // Record it and the current bounding box
+        // ID that it's connected to
+        max_count = it.second;
+        curr_box_id = it.first.second;
+      }
     }
+
+    // If there are no matches from the previous frame
+    // to any boxes to the current frame, skip
+    if (curr_box_id == -1) { continue; }
+    bbBestMatches.insert(std::pair<int, int>(box_id, curr_box_id));
   }
 }
