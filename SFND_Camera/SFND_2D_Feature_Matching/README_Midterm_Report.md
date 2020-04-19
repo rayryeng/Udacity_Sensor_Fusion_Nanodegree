@@ -1,9 +1,12 @@
-# Camera-Based 2D Feature Tracking Project Writeup
+# Camera-Based 2D Feature Matching Project Writeup
 
 This README contains the answers and how I addressed each point in the evaluation
 rubric as part of the submission for this project for evaluation. Please refer
 to each section below to review how I have answered each point in the evaluation
-rubric
+rubric.  This project concerns evaluating the different combinations of keypoint
+detectors and descriptors to decide what combination works best for calculating
+the Time-to-Collision (TTC) between the ego vehicle and the vehicle directly
+in front of it.
 
 Also note that the way to run the main function has changed to accept
 command-line arguments as this resulted in quicker experimentation preventing
@@ -36,7 +39,7 @@ The defaults for each variable are:
 * `matcherType`: `MAT_BF`
 * `selectorType`: `SEL_NN`
 * `bVis`: `1`
-* `bLimitKpts`: `1`
+* `bLimitKpts`: `0`
 * `bFocusOnVehicle`: `1`
 
 You can call the executable by overriding the default variable and specify the
@@ -52,12 +55,13 @@ $ ./2D_feature_tracking SIFT SIFT MAT_FLANN
 
 will make the detector and descriptor type SIFT using FLANN matching, but the 
 selector type will default to `SEL_NN`, and the `bVis`, `bLimitKpts` and
-`bFocusOnVehicle` to be set to true or `1`.  Please use the command-line
-arguments in order to provide the appropriate grading on this project.
+`bFocusOnVehicle` to be set to true, false and true respectively or `1`, `0`, `1`.
+Please use the command-line arguments in order to provide the appropriate grading
+on this project.
 
 ---
 
-## MP.1 - Data Buffer Optimisation
+# MP.1 - Data Buffer Optimisation
 
 To achieve this was quite trivial. As we receive a new image, we first check
 to see if the buffer is at the data buffer size limit. If it is, we simply
@@ -65,7 +69,7 @@ use the `std::vector::erase()` and point to the beginning of the vector as
 it is the "oldest" image in the buffer. We remove this entry from the vector
 and use `std::vector::push_back()` to place the "newest" image at the end.
 
-## MP.2 - Keypoint Detection
+# MP.2 - Keypoint Detection
 
 The Shi-Tomasi detector method has already been provided to us as a start.
 In addition, the previous exercise implementing the Harris Corner Detector with
@@ -78,7 +82,7 @@ type string is, and the correct type of detector is initialised. Once that
 happens, the `detect()` method for the corresponding detector is called to
 find the keypoints in the image.
 
-## MP.3 - Keypoint Removal
+# MP.3 - Keypoint Removal
 
 Using the `cv::Rect` that was defined to encapsulate the preceding vehicle and
 having the vector of keypoints that was created from MP.2, we can use
@@ -92,7 +96,7 @@ to finally remove the keypoints in the vector that were outside of the rectangle
   certain criteria and this was ultimately used to remove the keypoints that
   are not within the bounding area of the preceding vehicle.
 
-## MP.4  - Keypoint Descriptors
+# MP.4  - Keypoint Descriptors
 
 This task was to finish the implementation of the `descKeypoints` function
 which computes the descriptors given the current frame and the keypoints
@@ -104,7 +108,7 @@ this function by creating the right extractors for `ORB`, `FREAK`,
 extractor's `compute` method is called to extract the descriptors given
 the keypoints from MP.3.
 
-## MP.5 - Descriptor Matching
+# MP.5 - Descriptor Matching
 
 In the `matchDescriptors` function, the objective is to match descriptors
 between two images so that the corresponding keypoints match visually.
@@ -120,7 +124,7 @@ the descriptors into floating-point type before using the matching methods
 from OpenCV to match descriptors.  Between both brute-force and FLANN-based
 approaches, the right matcher is created for the appropriate scenario.
 
-## MP.6 - Descriptor Distance Ratio
+# MP.6 - Descriptor Distance Ratio
 
 Within `matchDescriptors`, the nearest neighbour matching task has already
 been implemented which uses the brute-force to return the best match for each
@@ -136,7 +140,7 @@ Therefore, should we get a match lower than the threshold, then we place
 the keypoint from the previous frame and this matched keypoint for the current
 frame in the vector of matches to be used for later.
 
-## MP.7 - Performance Evaluation 1
+# MP.7 - Performance Evaluation 1
 
 The objective here is to count the number of keypoints for each method over
 all 10 images provided in this midterm project.  We should also take note
@@ -204,7 +208,7 @@ as one would expect.
 
 ![ORB Sample Results](images/SIFT_sample.png)
 
-## MP.8 - Performance Evaluation 2
+# MP.8 - Performance Evaluation 2
 
 In this task, we will count the number of matches between all possible pairs of
 detectors and descriptors.  Please note that there are 7 detectors and 6
@@ -245,7 +249,7 @@ combination is skipped in the evaluation
 |**AKAZE**| N/A | N/A | N/A | N/A | 891,886,895,879,909,915,861,918,883 | N/A |
 |**SIFT**| 488,487,488,466,482,476,454,486,478 | 537,492,516,504,502,496,511,477,530 | N/A | 416,370,360,348,360,337,382,333,378 | N/A | 810,792,762,760,766,749,755,827,821 |
 
-## MP.9 - Performance Evaluation 3
+# MP.9 - Performance Evaluation 3
 
 In this task, we will measure the amount of time taken to calculate the
 detected keypoints and the resulting descriptors.  To get a better sense

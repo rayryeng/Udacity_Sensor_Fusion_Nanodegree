@@ -390,15 +390,17 @@ void computeTTCLidar(std::vector<LidarPoint>& lidarPointsPrev,
     mean_z /= lidar_points_prev.size();
 
     // Find distances to the centroid
-    std::vector<double> distances;
+    std::vector<double> distances_x, distances_y, distances_z;
     for (const auto& it : lidar_points_prev) {
-      distances.push_back(std::sqrt((it.x - mean_x) * (it.x - mean_x) +
-                                    (it.y - mean_y) * (it.y - mean_y) +
-                                    (it.z - mean_z) * (it.z - mean_z)));
+      distances_x.push_back(std::abs(it.x - mean_x));
+      distances_y.push_back(std::abs(it.y - mean_y));
+      distances_z.push_back(std::abs(it.z - mean_z));
     }
 
     // Check to see if current point is an outlier
-    if (check_for_outlier(distances, distances[prev_index])) {
+    if (check_for_outlier(distances_x, distances_x[prev_index]) ||
+        check_for_outlier(distances_y, distances_y[prev_index]) ||
+        check_for_outlier(distances_z, distances_z[prev_index])) {
       // If it is, remove this point from the point cloud and try again
       lidar_points_prev.erase(lidar_points_prev.begin() + prev_index);
       continue;
@@ -424,15 +426,19 @@ void computeTTCLidar(std::vector<LidarPoint>& lidarPointsPrev,
     mean_z /= lidar_points_curr.size();
 
     // Find distances to the centroid
-    distances.clear();
+    distances_x.clear();
+    distances_y.clear();
+    distances_z.clear();
     for (const auto& it : lidar_points_curr) {
-      distances.push_back(std::sqrt((it.x - mean_x) * (it.x - mean_x) +
-                                    (it.y - mean_y) * (it.y - mean_y) +
-                                    (it.z - mean_z) * (it.z - mean_z)));
+      distances_x.push_back(std::abs(it.x - mean_x));
+      distances_y.push_back(std::abs(it.y - mean_y));
+      distances_z.push_back(std::abs(it.z - mean_z));
     }
 
     // Check to see if current point is an outlier
-    if (check_for_outlier(distances, distances[curr_index])) {
+    if (check_for_outlier(distances_x, distances_x[curr_index]) ||
+        check_for_outlier(distances_y, distances_y[curr_index]) ||
+        check_for_outlier(distances_z, distances_z[curr_index])) {
       // If it is, remove this point from the point cloud and try again
       lidar_points_curr.erase(lidar_points_curr.begin() + curr_index);
       continue;
