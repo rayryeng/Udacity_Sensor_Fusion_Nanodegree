@@ -304,3 +304,25 @@ $ make
 ```
 
 This will create an executable for you to run.
+
+### Final Project
+
+In order to track commits, I've cloned the original final project repo from here:
+https://github.com/udacity/SFND_3D_Object_Tracking.  Please ensure that you
+have the right dependencies installed by looking at this repo prior to building.
+Navigate to the `SFND_Camera/SFND_3D_Object_Tracking/` directory then build it:
+
+```
+$ cd SFND_Camera/SFND_3D_Object_Tracking
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+This will create an executable for you to run.  This executable takes in
+command-line arguments.  Please review the final project report README for
+more details in `SFND_Camera/SFND_3D_Object_Tracking/README_Final_Report.md`.
+You can also have a look at the Jupyter Notebook located in
+`SFND_Camera/SFND_3D_Object_Tracking/TTC_Camera_Plots.ipynb` to take a look
+at the TTC performance graphs for different combinations of detectors
+and descriptors, but they're included in the final report for self-completeness.
