@@ -27,12 +27,15 @@ void show3DObjects(std::vector<BoundingBox>& boundingBoxes,
                    cv::Size imageSize,
                    bool bWait = true);
 
+// Changed to input an additional image to show matches
+// between two frames - also got rid of the pointer declarations
 void computeTTCCamera(std::vector<cv::KeyPoint>& kptsPrev,
                       std::vector<cv::KeyPoint>& kptsCurr,
                       std::vector<cv::DMatch> kptMatches,
                       double frameRate,
                       double& TTC,
-                      cv::Mat* visImg = nullptr);
+                      const cv::Mat& visImgPrev = cv::Mat(),
+                      const cv::Mat& visImgCurr = cv::Mat());
 void computeTTCLidar(std::vector<LidarPoint>& lidarPointsPrev,
                      std::vector<LidarPoint>& lidarPointsCurr,
                      double frameRate,

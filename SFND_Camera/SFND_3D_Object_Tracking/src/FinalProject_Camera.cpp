@@ -177,6 +177,9 @@ int main(int argc, const char* argv[]) {
   // list of data frames which are held in memory at the same time
   vector<DataFrame> dataBuffer;
 
+  // Vector of cv::Mat for displaying keypoint matches
+  vector<cv::Mat> buffer_to_display;
+
   // Stores TTC results for the camera-based method
   vector<pair<int, double>> ttc_results_camera;
 
@@ -206,8 +209,10 @@ int main(int argc, const char* argv[]) {
     // If we're at our limit, delete the first one
     if (dataBuffer.size() == dataBufferSize) {
       dataBuffer.erase(dataBuffer.begin());
+      buffer_to_display.erase(buffer_to_display.begin());
     }
     dataBuffer.push_back(frame);
+    buffer_to_display.push_back(img);
 
     cout << "#1 : LOAD IMAGE INTO BUFFER done" << endl;
 
@@ -378,7 +383,9 @@ int main(int argc, const char* argv[]) {
                                    (dataBuffer.end() - 1)->kptMatches);
           computeTTCCamera((dataBuffer.end() - 2)->keypoints,
                            (dataBuffer.end() - 1)->keypoints,
-                           currBB->kptMatches, sensorFrameRate, ttcCamera);
+                           currBB->kptMatches, sensorFrameRate, ttcCamera,
+                           *(buffer_to_display.end() - 2),
+                           *(buffer_to_display.end() - 1));
           ttc_results_camera.push_back(make_pair(imgIndex, ttcCamera));
           //// EOF STUDENT ASSIGNMENT
 

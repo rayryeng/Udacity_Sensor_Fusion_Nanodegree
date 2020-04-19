@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iostream>
 #include <numeric>
+#include <opencv2/features2d.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <set>  // Added by Ray
@@ -284,7 +285,8 @@ void computeTTCCamera(std::vector<cv::KeyPoint>& kptsPrev,
                       std::vector<cv::DMatch> kptMatches,
                       double frameRate,
                       double& TTC,
-                      cv::Mat* visImg) {
+                      const cv::Mat& visImgPrev,
+                      const cv::Mat& visImgCurr) {
   // Taken from TTC_camera project
   // DMatch struct
   // --> trainIdx: index of matched keypoint in curr. frame
@@ -332,6 +334,20 @@ void computeTTCCamera(std::vector<cv::KeyPoint>& kptsPrev,
   // Now calculate TTC
   const double dT = 1 / frameRate;
   TTC = -dT / (1.0f - median_dist_ratio);
+
+  // Also display the keypoints within the current bounding box
+  if (!visImgPrev.empty() && !visImgCurr.empty()) {
+    cv::Mat img;
+    cv::drawMatches(visImgPrev, kptsPrev, visImgCurr, kptsCurr, kptMatches, img,
+                    cv::Scalar::all(-1), cv::Scalar::all(-1), vector<char>(),
+                    cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+    string windowName = "Matches between previous and current frame";
+    cv::namedWindow(windowName, 1);
+    cv::imshow(windowName, img);
+    cout << "Showing keypoints drawn for the current frame - Press any key to "
+            "continue\n";
+    cv::waitKey(0);  // wait for key to be pressed
+  }
 }
 
 void computeTTCLidar(std::vector<LidarPoint>& lidarPointsPrev,
