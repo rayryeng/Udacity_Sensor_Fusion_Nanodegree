@@ -381,11 +381,17 @@ int main(int argc, const char* argv[]) {
           clusterKptMatchesWithROI(*currBB, (dataBuffer.end() - 2)->keypoints,
                                    (dataBuffer.end() - 1)->keypoints,
                                    (dataBuffer.end() - 1)->kptMatches);
-          computeTTCCamera((dataBuffer.end() - 2)->keypoints,
-                           (dataBuffer.end() - 1)->keypoints,
-                           currBB->kptMatches, sensorFrameRate, ttcCamera,
-                           *(buffer_to_display.end() - 2),
-                           *(buffer_to_display.end() - 1));
+          if (bVis) {
+            computeTTCCamera((dataBuffer.end() - 2)->keypoints,
+                             (dataBuffer.end() - 1)->keypoints,
+                             currBB->kptMatches, sensorFrameRate, ttcCamera,
+                             *(buffer_to_display.end() - 2),
+                             *(buffer_to_display.end() - 1));
+          } else {
+            computeTTCCamera((dataBuffer.end() - 2)->keypoints,
+                             (dataBuffer.end() - 1)->keypoints,
+                             currBB->kptMatches, sensorFrameRate, ttcCamera);
+          }
           ttc_results_camera.push_back(make_pair(imgIndex, ttcCamera));
           //// EOF STUDENT ASSIGNMENT
 
@@ -421,9 +427,14 @@ int main(int argc, const char* argv[]) {
   for (const auto& pr : ttc_results_lidar) {
     cout << pr.first << "," << pr.second << "\n";
   }
-  cout << "Showing results - Left: Img. Index, Right: TTC Camera\n";
-  for (const auto& pr : ttc_results_camera) {
-    cout << pr.first << "," << pr.second << "\n";
+  cout << "Showing results - TTC Camera\n" << descriptorType << "_ttc_times = [";
+  for (size_t i = 0; i < ttc_results_camera.size(); i++) {
+    cout << ttc_results_camera[i].second;
+    if (i != ttc_results_camera.size() - 1) {
+      cout << ", ";
+    } else {
+      cout << "]\n";
+    }
   }
   return 0;
 }

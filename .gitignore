@@ -48,4 +48,7 @@ build/
 # that shouldn't be part of this repo
 *.student_bashrc
 
+# Jupyter-notebook cached files
+.ipynb_checkpoints/
+
 # End of https://www.gitignore.io/api/c++
