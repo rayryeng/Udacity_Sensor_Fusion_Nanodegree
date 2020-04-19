@@ -40,33 +40,33 @@ will make the detector and descriptor type SIFT using FLANN matching, but the se
 
 --------------------------------------------------------------------------------
 
-# MP.1 - Data Buffer Optimisation
+## MP.1 - Data Buffer Optimisation
 
 To achieve this was quite trivial. As we receive a new image, we first check to see if the buffer is at the data buffer size limit. If it is, we simply use the `std::vector::erase()` and point to the beginning of the vector as it is the "oldest" image in the buffer. We remove this entry from the vector and use `std::vector::push_back()` to place the "newest" image at the end.
 
-# MP.2 - Keypoint Detection
+## MP.2 - Keypoint Detection
 
 The Shi-Tomasi detector method has already been provided to us as a start. In addition, the previous exercise implementing the Harris Corner Detector with the OpenCV API was used as inspiration to complete the `detKeypointsHarris` function where both the detector parameters and the non-maximum suppression implementation were implemented in this function. Lastly, the `detKeypointsModern` function was provided as a stub left for us to complete. Given the detector type which was stored in a string, the function first checks what the detector type string is, and the correct type of detector is initialised. Once that happens, the `detect()` method for the corresponding detector is called to find the keypoints in the image.
 
-# MP.3 - Keypoint Removal
+## MP.3 - Keypoint Removal
 
 Using the `cv::Rect` that was defined to encapsulate the preceding vehicle and having the vector of keypoints that was created from MP.2, we can use `std::vector::remove_if` to create a new iterator over the keypoints such that any keypoints that were not inside this rectangle and moved towards the end of the vector where any keypoints that were indeed in the rectangle are moved towards the front. We then use `std::vector::erase()` using this new iterator to finally remove the keypoints in the vector that were outside of the rectangle. This is a very well-known operation in C++ called the [Erase-Remove Idiom](https://en.wikipedia.org/wiki/Erase%E2%80%93remove_idiom) and efficiently removes elements from a STL container that do not meet certain criteria and this was ultimately used to remove the keypoints that are not within the bounding area of the preceding vehicle.
 
-# MP.4 - Keypoint Descriptors
+## MP.4 - Keypoint Descriptors
 
 This task was to finish the implementation of the `descKeypoints` function which computes the descriptors given the current frame and the keypoints detected in MP.3\. In the original template, the `BRISK` option was already implemented which constructs the right extractor to help extract descriptors from the given keypoints. We complete the implementation of this function by creating the right extractors for `ORB`, `FREAK`, `AKAZE` and `SIFT` given the `descriptorType` string. After, the extractor's `compute` method is called to extract the descriptors given the keypoints from MP.3.
 
-# MP.5 - Descriptor Matching
+## MP.5 - Descriptor Matching
 
 In the `matchDescriptors` function, the objective is to match descriptors between two images so that the corresponding keypoints match visually. The brute-force approach has already been provided. Take note that the cross check option has been enabled and the distance type is now dynamically set for the brute-force approach such that it is the L2 norm when using `SIFT` and the Hamming distance for the other descriptors as they're binary.
 
 To implement the FLANN-based method, this was simply taken from previous exercises. The workaround mentioned in the video lectures is to convert the descriptors into floating-point type before using the matching methods from OpenCV to match descriptors. Between both brute-force and FLANN-based approaches, the right matcher is created for the appropriate scenario.
 
-# MP.6 - Descriptor Distance Ratio
+## MP.6 - Descriptor Distance Ratio
 
 Within `matchDescriptors`, the nearest neighbour matching task has already been implemented which uses the brute-force to return the best match for each descriptor provided from the previous frame. It is here where this next task is implemented where we provide the k-nearest neighbour matching method where `k = 2`. This section to implement was also taken from previous exercises such that for each keypoint in the previous frame, we return two possible matches. The distance ratio logic was implemented such that if the ratio between the distance of the first match to the second match is less than a certain threshold (0.8 in this case), the match is not ambiguous with other possibly repeating patterns or textures in the image. Therefore, should we get a match lower than the threshold, then we place the keypoint from the previous frame and this matched keypoint for the current frame in the vector of matches to be used for later.
 
-# MP.7 - Performance Evaluation 1
+## MP.7 - Performance Evaluation 1
 
 The objective here is to count the number of keypoints for each method over all 10 images provided in this midterm project. We should also take note of the distribution of the neighbourhood size (i.e. the scale) and that the number of keypoints is solely restricted to the preceding vehicle.
 
@@ -112,7 +112,7 @@ For the SIFT detector, this has a similar spread of keypoints like BRISK and AKA
 
 ![ORB Sample Results](images/SIFT_sample.png)
 
-# MP.8 - Performance Evaluation 2
+## MP.8 - Performance Evaluation 2
 
 In this task, we will count the number of matches between all possible pairs of detectors and descriptors. Please note that there are 7 detectors and 6 descriptors we can use here 7 x 6 = 42 combinations. The table below illustrates the number of matches for every combination where the rows indicate the detector and the columns indicate the descriptor. Each entry in the table is a comma-separated list denoting the number of matches found in order from frame 0 to frame 1, frame 1 to frame 2 up until to frame 8 to frame 9.
 
