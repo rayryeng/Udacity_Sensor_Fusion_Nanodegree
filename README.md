@@ -260,3 +260,7 @@ This section of the course talks about the maximum range a Radar can have for de
 ### Lesson 3 - Range-Doppler Estimation
 
 This section of the course discusses the Doppler effect and how to simultaneously estimate the velocity and position of an object.  In `SFND_Radar/Lesson3` are various exercises to estimate the range (distance from the ego vehicle), the velocity (via the Doppler effect) and understanding how the Fast Fourier Transform (FFT) works, specifically on how it applies to simultaneous range and velocity estimation of objects with respect to the ego vehicle.  Just run each script individually to see what the relevant outputs are.
+
+### Lesson 4 - Constant False Alarm Rate (CFAR)
+
+This section of the course studies the Constant False Alarm Rate (CFAR) technique on how to adaptively threshold the frequency spectrum obtained by a radar signal to detect obstacles in the environment.  I have implemented both the original non-efficient version using loops and one using convolution.  In `SFND_Radar/Lesson4`, a MATLAB exercise is provided to demonstrate how to find peaks in a frequency spectrum.  Just run the script to see what the relevant outputs are.
