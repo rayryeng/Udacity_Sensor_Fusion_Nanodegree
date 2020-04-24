@@ -1,3 +1,4 @@
+clc; clearvars; close all;
 %Operating frequency (Hz)
 fc = 77.0e9;
 

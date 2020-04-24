@@ -2,6 +2,8 @@
 
 This contains my homework assignments and quiz solutions for the programming portions of this nanodegree. They will be partitioned into separate directories, one for each course. Each course will have separate build instructions. Please note that I have also included the YOLOv3 weights from the Camera course as part of this repo. You will need Git LFS to download the weights. Please visit <https://github.com/git-lfs/git-lfs/wiki/Installation> to install Git LFS. Once you do, clone the repo and in the repo directory please use the following to download the YOLOv3 weights.
 
+Also note that the Radar section of this course uses MATLAB so you will need to have this software available to run the code for this part of the course.  This was not explicitly mentioned in the official overview of the course which alludes to only knowing C++.
+
 ```
 $ cd <path to this repo>
 $ git lfs fetch
@@ -11,7 +13,7 @@ The weights will appear in `SFND_Camera/detect_objects/dat/yolo/yolov3.weights`
 
 # Instructions for building and running
 
-## Lidar Obstacle Detection Course
+## LiDAR Obstacle Detection Course
 
 This can be found in the `SFND_Lidar_Obstacle_Detection` directory in this repo. This was initially a fork from <https://github.com/udacity/SFND_Lidar_Obstacle_Detection>, but I made significant changes to the formatting, fixed some bugs that were seen on the Issues page of the original repo and diverged away a bit from the original specifications for submitting the project. However, the directory essentially contains the completed project and does fulfill the guidelines required to gain a successful pass.
 
@@ -248,3 +250,13 @@ $ make
 ```
 
 This will create an executable for you to run. This executable takes in command-line arguments. Please review the final project report README for more details in `SFND_Camera/SFND_3D_Object_Tracking/README_Final_Report.md`. You can also have a look at the Jupyter Notebook located in `SFND_Camera/SFND_3D_Object_Tracking/TTC_Camera_Plots.ipynb` to take a look at the TTC performance graphs for different combinations of detectors and descriptors, but they're included in the final report for self-completeness.
+
+## Radar Course
+
+### Lesson 2 - Radar Principles
+
+This section of the course talks about the maximum range a Radar can have for detecting objects.  In `SFND_Radar/Lesson2_Radar_Range_Equation`, a MATLAB exercise is provided to calculate this quantity given the requirements of the Radar device in question.  Just run the script in this directory to see the final output value.
+
+### Lesson 3 - Range-Doppler Estimation
+
+This section of the course discusses the Doppler effect and how to simultaneously estimate the velocity and position of an object.  In `SFND_Radar/Lesson3` are various exercises to estimate the range (distance from the ego vehicle), the velocity (via the Doppler effect) and understanding how the Fast Fourier Transform (FFT) works, specifically on how it applies to simultaneous range and velocity estimation of objects with respect to the ego vehicle.  Just run each script individually to see what the relevant outputs are.
