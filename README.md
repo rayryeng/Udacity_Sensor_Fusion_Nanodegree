@@ -2,7 +2,7 @@
 
 This contains my homework assignments and quiz solutions for the programming portions of this nanodegree. They will be partitioned into separate directories, one for each course. Each course will have separate build instructions. Please note that I have also included the YOLOv3 weights from the Camera course as part of this repo. You will need Git LFS to download the weights. Please visit <https://github.com/git-lfs/git-lfs/wiki/Installation> to install Git LFS. Once you do, clone the repo and in the repo directory please use the following to download the YOLOv3 weights.
 
-Also note that the Radar section of this course uses MATLAB so you will need to have this software available to run the code for this part of the course.  This was not explicitly mentioned in the official overview of the course which alludes to only knowing C++.
+Also note that the Radar section of this course uses MATLAB so you will need to have this software available to run the code for this part of the course.  This was not explicitly mentioned in the official overview of the course which alludes to only knowing C++.  However, MATLAB is only required for one part of the Radar section and it isn't explicitly required to complete the course.  Therefore, you can run most of the code in this section with Octave.  The final project can run in either MATLAB or Octave.
 
 ```
 $ cd <path to this repo>
@@ -267,4 +267,7 @@ This section of the course studies the Constant False Alarm Rate (CFAR) techniqu
 
 ### Lesson 5 - Clustering and Tracking
 
-This section of the course introduces clustering and tracking using the Kalman Filter.  The MATLAB code found in `SFND_Radar/Lesson5` is the demonstration script that was used for this section.  You can run it to simulate a driving scenario with vehicles and full sensor readings.
+This section of the course introduces clustering and tracking using the Kalman Filter.  The MATLAB code found in `SFND_Radar/Lesson5` is the demonstration script that was used for this section.  You can run it to simulate a driving scenario with vehicles and full sensor readings.  Please note that you will need MATLAB's [Automated Driving Toolbox](https://www.mathworks.com/products/automated-driving.html) to run this code.  However, it is not essential for the completion of this course.
+
+### Final Project
+This project dealt with generating an artificial moving target by assuming it is moving with the constant velocity model, creating a transmitted and received signal as what would be done in a radar module, then calculating a Range-Doppler Map (RDM) to ascertain the position and velocity of the target.  Because the RDM is inherently noisy due to radar clutter, the CFAR is calculated in 2D in this RDM to finally detect where the object is and its speed.  In the lecture videos, `pow2db` and `db2pow` are used to convert between unitless magnitude and dB.  These functions are in the Signal Processing Toolbox in MATLAB.  To ensure Octave compatibility, those functions have been implemented as anonymous functions in the code that can be called instead of using the ones from the Signal Processing Toolbox.  Simply navigate to `SFND_Radar/FinalProject` to run the code.  The README file in the same directory addresses how the 2D CFAR was implemented, as well as discussing the choice of the hyperparameters and handling other nuances in the method.
