@@ -264,3 +264,7 @@ This section of the course discusses the Doppler effect and how to simultaneousl
 ### Lesson 4 - Constant False Alarm Rate (CFAR)
 
 This section of the course studies the Constant False Alarm Rate (CFAR) technique on how to adaptively threshold the frequency spectrum obtained by a radar signal to detect obstacles in the environment.  I have implemented both the original non-efficient version using loops and one using convolution.  In `SFND_Radar/Lesson4`, a MATLAB exercise is provided to demonstrate how to find peaks in a frequency spectrum.  Just run the script to see what the relevant outputs are.
+
+### Lesson 5 - Clustering and Tracking
+
+This section of the course introduces clustering and tracking using the Kalman Filter.  The MATLAB code found in `SFND_Radar/Lesson5` is the demonstration script that was used for this section.  You can run it to simulate a driving scenario with vehicles and full sensor readings.
