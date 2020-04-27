@@ -277,4 +277,13 @@ This project dealt with generating an artificial moving target by assuming it is
 ## Kalman Filter Course
 
 ### Review
-In one section of the course, we use Python to implement a basic Kalman filter as well as answer some quiz questions.  The answers to those questions as well as the basic Kalman filter implementation can be found in the `SFND_Kalman_Filter/Review` directory.  Any version of Python 3 should work for this as there are external dependencies.
+In one section of the course, we use Python to implement a basic Kalman filter as well as answer some quiz questions.  The answers to those questions as well as the basic Kalman filter implementation can be found in the `SFND_Kalman_Filter/Review` directory.  Any version of Python 3 should work for this as there are external dependencies.  The same exercise in C++ can be found in `SFND_Kalman_Filter/Review_CPP/tracking_1d` which uses the Eigen library to perform matrix computations.  Make sure Eigen is installed on your computer first prior to building.  Eigen is a header-only library, so you can either download it or you can use package installers.  Please go here to download it: http://eigen.tuxfamily.org/index.php?title=Main_Page#Download.  You can also install it through Homebrew on Mac OS by a simple `brew install eigen` or through `apt-get` on Debian flavoured Unix distros (see https://askubuntu.com/questions/860207/how-to-install-eigen-3-3-in-ubuntu-14-04).  Assuming you have installed Eigen, you can navigate to the aforementioned directory, then use the following to build:
+
+```
+$ cd SFND_Kalman_Filter/Review_CPP/tracking_1d
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+This will make an executable for you to run and you can run it.
