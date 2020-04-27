@@ -13,7 +13,7 @@ Please note that the Radar section of this course uses MATLAB so you will need t
 
 There is also a portion of the course that uses Python to give a brief introduction to Kalman Filter principles, but the knowledge required is very basic and does not use any external dependencies.  This also was not mentioned as part of the requirements in this course.  Any version of Python 3 should work.  The original code was originally in Python 2 which I have changed to Python 3 for longevity.
 
-# Instructions for building and running
+## Instructions for building and running
 
 ## LiDAR Obstacle Detection Course
 
@@ -287,3 +287,15 @@ $ make
 ```
 
 This will make an executable for you to run and you can run it.
+
+### 2D Kalman Filter - Tracking Pedestrian Position using LiDAR
+In this exercise, we are using a 2D Kalman Filter to predict the position of a pedestrian using LiDAR measurements.  This code has been modified to run locally.  In particular, I have made the necessary CMake files for this to run locally.  Simply go to `SFND_Kalman_Filter/tracking_2d`, configure and build the project:
+
+```
+$ cd SFND_Kalman_Filter/tracking_2d
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+There will be an executable for you to run.
