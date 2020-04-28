@@ -299,3 +299,16 @@ $ make
 ```
 
 There will be an executable for you to run.
+
+### Jacobian Matrix
+
+The measurement update step for the radar sensor is non-linear, so the need to linearise the measurement update functions is required.  The Jacobian matrix help us do this.  This exercise implements the Jacobian for measuring radar measurements and transferring those to updating the position and velocity states.  Simply go to `SFND_Kalman_Filter/jacobian_matrix`, configure and build the project:
+
+```
+$ cd SFND_Kalman_Filter/jacobian_matrix
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+There will be an executable for you to run.
