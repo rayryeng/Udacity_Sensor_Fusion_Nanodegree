@@ -312,3 +312,14 @@ $ make
 ```
 
 There will be an executable for you to run.
+
+### RMSE
+
+A simple program for calculating the RMSE between vectors can be found in `SFND_Kalman_Filter/rmse`.  Configure and build, then run the executable found here:
+
+```
+$ cd SFND_Kalman_Filter/rmse
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
