@@ -277,7 +277,7 @@ This project dealt with generating an artificial moving target by assuming it is
 ## Kalman Filter Course
 
 ### Review
-In one section of the course, we use Python to implement a basic Kalman filter as well as answer some quiz questions.  The answers to those questions as well as the basic Kalman filter implementation can be found in the `SFND_Kalman_Filter/Review` directory.  Any version of Python 3 should work for this as there are external dependencies.  The same exercise in C++ can be found in `SFND_Kalman_Filter/Review_CPP/tracking_1d` which uses the Eigen library to perform matrix computations.  Make sure Eigen is installed on your computer first prior to building.  Eigen is a header-only library, so you can either download it or you can use package installers.  Please go here to download it: http://eigen.tuxfamily.org/index.php?title=Main_Page#Download.  You can also install it through Homebrew on Mac OS by a simple `brew install eigen` or through `apt-get` on Debian flavoured Unix distros (see https://askubuntu.com/questions/860207/how-to-install-eigen-3-3-in-ubuntu-14-04).  Assuming you have installed Eigen, you can navigate to the aforementioned directory, then use the following to build:
+In one section of the course, we use Python to implement a basic Kalman filter as well as answer some quiz questions.  The answers to those questions as well as the basic Kalman filter implementation can be found in the `SFND_Kalman_Filter/Review_Python` directory.  Any version of Python 3 should work for this as there are external dependencies.  The same exercise in C++ can be found in `SFND_Kalman_Filter/Review_CPP/tracking_1d` which uses the Eigen library to perform matrix computations.  Make sure Eigen is installed on your computer first prior to building.  Eigen is a header-only library, so you can either download it or you can use package installers.  Please go here to download it: http://eigen.tuxfamily.org/index.php?title=Main_Page#Download.  You can also install it through Homebrew on Mac OS by a simple `brew install eigen` or through `apt-get` on Debian flavoured Unix distros (see https://askubuntu.com/questions/860207/how-to-install-eigen-3-3-in-ubuntu-14-04).  Assuming you have installed Eigen, you can navigate to the aforementioned directory, then use the following to build:
 
 ```
 $ cd SFND_Kalman_Filter/Review_CPP/tracking_1d
@@ -319,6 +319,61 @@ A simple program for calculating the RMSE between vectors can be found in `SFND_
 
 ```
 $ cd SFND_Kalman_Filter/rmse
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+### Generating Sigma Points
+
+This exercise is the first step for implementing the Unscented Kalman Filter.   Configure and build, then run the executable found here:
+
+```
+$ cd SFND_Kalman_Filter/generating_sigma_points
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+### UKF Augmentation - LiDAR
+
+This exercise implements augmenting the state vector to observe the noise distributions of the acceleration and yaw acceleration.  Configure and build, then run the executable found here:
+
+```
+$ cd SFND_Kalman_Filter/ukf_augmentation
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+### UKF Augmentation: Predict - LiDAR
+
+This exercise implements estimating the new augmented state vector from the previous observations.  Configure and build, then run the executable found here:
+
+```
+$ cd SFND_Kalman_Filter/ukf_augmentation_predict
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+### UKF Augmentation: Estimate new mean and covariance - LiDAR
+
+This exercise implements estimating the mean and covariance of the augmented state vector.  Configure and build, then run the executable found here:
+
+```
+$ cd SFND_Kalman_Filter/ukf_augmentation_mean_covariance
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+### UKF Measurement Predict - Radar
+
+This exercise implements estimating the measurement vector from the previous observations.  Configure and build, then run the executable found here:
+
+```
+$ cd SFND_Kalman_Filter/ukf_predict_radar
 $ mkdir build && cd build
 $ cmake ..
 $ make
