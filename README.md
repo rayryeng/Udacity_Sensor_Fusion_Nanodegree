@@ -289,10 +289,10 @@ $ make
 This will make an executable for you to run and you can run it.
 
 ### 2D Kalman Filter - Tracking Pedestrian Position using LiDAR
-In this exercise, we are using a 2D Kalman Filter to predict the position of a pedestrian using LiDAR measurements.  This code has been modified to run locally.  In particular, I have made the necessary CMake files for this to run locally.  Simply go to `SFND_Kalman_Filter/tracking_2d`, configure and build the project:
+In this exercise, we are using a 2D Kalman Filter to predict the position of a pedestrian using LiDAR measurements.  This code has been modified to run locally.  In particular, I have made the necessary CMake files for this to run locally.  Simply go to `SFND_Kalman_Filter/EKF_Prep/tracking_2d`, configure and build the project:
 
 ```
-$ cd SFND_Kalman_Filter/tracking_2d
+$ cd SFND_Kalman_Filter/EKF_Prep/tracking_2d
 $ mkdir build && cd build
 $ cmake ..
 $ make
@@ -302,10 +302,10 @@ There will be an executable for you to run.
 
 ### Jacobian Matrix
 
-The measurement update step for the radar sensor is non-linear, so the need to linearise the measurement update functions is required.  The Jacobian matrix help us do this.  This exercise implements the Jacobian for measuring radar measurements and transferring those to updating the position and velocity states.  Simply go to `SFND_Kalman_Filter/jacobian_matrix`, configure and build the project:
+The measurement update step for the radar sensor is non-linear, so the need to linearise the measurement update functions is required.  The Jacobian matrix help us do this.  This exercise implements the Jacobian for measuring radar measurements and transferring those to updating the position and velocity states.  Simply go to `SFND_Kalman_Filter/EKF_Prep/jacobian_matrix`, configure and build the project:
 
 ```
-$ cd SFND_Kalman_Filter/jacobian_matrix
+$ cd SFND_Kalman_Filter/EKF_Prep/jacobian_matrix
 $ mkdir build && cd build
 $ cmake ..
 $ make
@@ -315,10 +315,10 @@ There will be an executable for you to run.
 
 ### RMSE
 
-A simple program for calculating the RMSE between vectors can be found in `SFND_Kalman_Filter/rmse`.  Configure and build, then run the executable found here:
+A simple program for calculating the RMSE between vectors can be found in `SFND_Kalman_Filter/EKF_Prep/rmse`.  Configure and build, then run the executable found here:
 
 ```
-$ cd SFND_Kalman_Filter/rmse
+$ cd SFND_Kalman_Filter/EKF_Prep/rmse
 $ mkdir build && cd build
 $ cmake ..
 $ make
@@ -329,7 +329,7 @@ $ make
 This exercise is the first step for implementing the Unscented Kalman Filter.   Configure and build, then run the executable found here:
 
 ```
-$ cd SFND_Kalman_Filter/generating_sigma_points
+$ cd SFND_Kalman_Filter/UKF_Prep/generating_sigma_points
 $ mkdir build && cd build
 $ cmake ..
 $ make
@@ -340,7 +340,7 @@ $ make
 This exercise implements augmenting the state vector to observe the noise distributions of the acceleration and yaw acceleration.  Configure and build, then run the executable found here:
 
 ```
-$ cd SFND_Kalman_Filter/ukf_augmentation
+$ cd SFND_Kalman_Filter/UKF_Prep/ukf_augmentation
 $ mkdir build && cd build
 $ cmake ..
 $ make
@@ -351,7 +351,7 @@ $ make
 This exercise implements estimating the new augmented state vector from the previous observations.  Configure and build, then run the executable found here:
 
 ```
-$ cd SFND_Kalman_Filter/ukf_augmentation_predict
+$ cd SFND_Kalman_Filter/UKF_Prep/ukf_augmentation_predict
 $ mkdir build && cd build
 $ cmake ..
 $ make
@@ -362,7 +362,7 @@ $ make
 This exercise implements estimating the mean and covariance of the augmented state vector.  Configure and build, then run the executable found here:
 
 ```
-$ cd SFND_Kalman_Filter/ukf_augmentation_mean_covariance
+$ cd SFND_Kalman_Filter/UKF_Prep/ukf_augmentation_mean_covariance
 $ mkdir build && cd build
 $ cmake ..
 $ make
@@ -373,7 +373,7 @@ $ make
 This exercise implements estimating the measurement vector from the previous observations.  Configure and build, then run the executable found here:
 
 ```
-$ cd SFND_Kalman_Filter/ukf_predict_radar
+$ cd SFND_Kalman_Filter/UKF_Prep/ukf_predict_radar
 $ mkdir build && cd build
 $ cmake ..
 $ make
@@ -384,7 +384,7 @@ $ make
 This exercise implements updating the state vector and covariance.  Configure and build, then run the executable found here:
 
 ```
-$ cd SFND_Kalman_Filter/ukf_predict
+$ cd SFND_Kalman_Filter/UKF_Prep/ukf_update
 $ mkdir build && cd build
 $ cmake ..
 $ make
