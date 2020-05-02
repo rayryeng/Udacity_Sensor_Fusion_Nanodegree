@@ -378,3 +378,14 @@ $ mkdir build && cd build
 $ cmake ..
 $ make
 ```
+
+### UKF Update - Radar
+
+This exercise implements updating the state vector and covariance.  Configure and build, then run the executable found here:
+
+```
+$ cd SFND_Kalman_Filter/ukf_predict
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
