@@ -389,3 +389,38 @@ $ mkdir build && cd build
 $ cmake ..
 $ make
 ```
+
+### Unscented Kalman Filter Project
+
+Please navigate to the `SFND_Kalman_Filter/SFND_Unscented_Kalman_Filter` directory to find the implementation of the Unscented Kalman Filter project.  Please note that this is a clone of the official repo found here: https://github.com/udacity/SFND_Unscented_Kalman_Filter.  However, there have been two crucial changes:
+
+1.  This repo came with a local version of Eigen which I have removed to reduce space.
+2.  The README file had some redundancies which I have removed.
+
+To build this project, simply configure and build it:
+
+```
+$ cd SFND_Kalman_Filter/SFND_Unscented_Kalman_Filter
+$ mkdir build && cd build
+$ cmake ..
+$ make
+```
+
+There will be an executable for you to run.  
+
+**Note:** I've had some difficulty building this on Mac OS - in particular, the way Eigen and PCL interact on my system causes some build errors with the `cmath` header.  As a workaround, I had to specifically point to where my Xcode command-line tools were when I configured the project:
+
+```
+$ cd SFND_Kalman_Filter/SFND_Unscented_Kalman_Filter
+$ mkdir build && cd build
+$ cmake -DCMAKE_OSX_SYSROOT="/Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk" ..
+$ make
+```
+
+Note that the above CMake variable `CMAKE_OSX_SYSROOT` should be modified so that it points directly to the Xcode command-line tools SDK that is installed on your system.  You can find this out by doing:
+
+```
+$ xcrun --show-sdk-path
+```
+
+Source: https://github.com/PointCloudLibrary/pcl/issues/2601

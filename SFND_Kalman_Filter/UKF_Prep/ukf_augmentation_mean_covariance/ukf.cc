@@ -60,7 +60,7 @@ void UKF::PredictMeanAndCovariance(VectorXd* x_out, MatrixXd* P_out) {
   weights(0) = lambda / (lambda + n_aug);
 
   // predict state mean
-  x = (Xsig_pred.array().rowwise() * weights.transpose().array()).rowwise().sum();
+  x = Xsig_pred * weights;
   // predict state covariance matrix
   P = (Xsig_pred.array().colwise() - x.array());
   P = P * weights.asDiagonal() * P.transpose();

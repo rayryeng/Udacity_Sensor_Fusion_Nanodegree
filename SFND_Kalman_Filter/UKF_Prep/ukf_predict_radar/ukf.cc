@@ -80,11 +80,14 @@ void UKF::PredictRadarMeasurement(VectorXd* z_out, MatrixXd* S_out) {
   // transform sigma points into measurement space
   Zsig.row(0) = ((Xsig_pred.row(0).array() * Xsig_pred.row(0).array()) +
                  (Xsig_pred.row(1).array() * Xsig_pred.row(1).array())).sqrt();
-  Zsig.row(1) = (Xsig_pred.row(1).array() / Xsig_pred.row(0).array()).atan();
+  //Zsig.row(1) = (Xsig_pred.row(1).array() / Xsig_pred.row(0).array()).atan();
+  for (int i = 0; i < Zsig.cols(); i++) {
+    Zsig(1, i) = std::atan2(Xsig_pred(1, i), Xsig_pred(0, i));
+  }  
   Zsig.row(2) = ((Xsig_pred.row(0).array() * Xsig_pred.row(2).array() * Xsig_pred.row(3).array().cos()) +
                  (Xsig_pred.row(1).array() * Xsig_pred.row(2).array() * Xsig_pred.row(3).array().sin())) / Zsig.row(0).array();
   // calculate mean predicted measurement
-  z_pred = (Zsig.array().rowwise() * weights.transpose().array()).rowwise().sum();
+  z_pred = Zsig * weights;
   // calculate innovation covariance matrix S
   MatrixXd R(3, 3);
   R << std_radr * std_radr, 0, 0,
