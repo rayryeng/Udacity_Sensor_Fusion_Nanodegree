@@ -96,11 +96,12 @@ The official [PCL's prebuilt binaries for Windows](http://www.pointclouds.org/do
 	$> cmake ..
 	$> make
 	$> ./environment
-	```
+```
 
 #### Prebuilt Binaries via Universal Installer
 
 http://www.pointclouds.org/downloads/macosx.html  
+
 NOTE: very old version 
 
 #### Build from Source
