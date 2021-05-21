@@ -103,7 +103,7 @@ struct KdTree {
     // Check to see if all coordinates are within the tolerance (bounding box)
     bool check = true;
     for (size_t i = 0; i < target.size(); i++) {
-      check &= (std::abs(node->point[index] - target[index]) <= distanceTol);
+      check &= (std::abs(node->point[i] - target[i]) <= distanceTol);
     }
     if (check) {
       // Now calculate the actual physical distance if it's within bounding box
