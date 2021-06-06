@@ -41,9 +41,9 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer,
   // ----------------------------------------------------
 
   pcl::PointCloud<pcl::PointXYZI>::Ptr filter_cloud =
-      point_processor->FilterCloud(input_cloud, 0.3,
-                                   Eigen::Vector4f(-10, -5.5, -3, 1),
-                                   Eigen::Vector4f(30, 7, 3, 1));
+      point_processor->FilterCloud(input_cloud, 0.1,
+                                   Eigen::Vector4f(-20, -6, -3, 1),
+                                   Eigen::Vector4f(25, 6.5, 3, 1));
   // renderPointCloud(viewer, filter_cloud, "filterCloud");
 
   ///// Obstacle Detection - Lesson 4 - Part 1
@@ -51,11 +51,11 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer,
   std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr,
             pcl::PointCloud<pcl::PointXYZI>::Ptr>
       segment_cloud =
-          point_processor->SegmentPlane(filter_cloud, 25, 0.3, use_custom);
+          point_processor->SegmentPlane(filter_cloud, 25, 0.2, use_custom);
 
   // Step #2 - Perform clustering
   std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloud_clusters =
-      point_processor->Clustering(segment_cloud.first, 0.4, 10, 500,
+      point_processor->Clustering(segment_cloud.first, 0.4, 30, 5000,
                                   use_custom);
 
   renderPointCloud(viewer, segment_cloud.first, "obstCloud", Color(1, 0, 0));
