@@ -91,7 +91,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
       const double y = rho * sin(phi);
       const double vx = rhodot * cos(phi);
       const double vy = rhodot * sin(phi);
-      const double v = std::sqrt(vx * vx + vy * vy);
+      const double v = rhodot; // std::sqrt(vx * vx + vy * vy);
       x_ << x, y, v, rho, rhodot;
       P_ << std_radr_* std_radr_, 0, 0, 0, 0,
             0, std_radr_ * std_radr_, 0, 0, 0,
@@ -276,7 +276,7 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
        weights_.asDiagonal() *
        (Zsig.array().colwise() - z_pred.array()).matrix().transpose();
 
-  // Step #7 - Calculate Kalman gain K;
+  // Step #7 - Calculate Kalman gain K
   const MatrixXd K = Tc * S.inverse();
 
   // Step #8 - Update state mean and covariance matrix
