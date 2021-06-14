@@ -2,6 +2,8 @@
 // Create simple 3d highway enviroment using PCL
 // for exploring self-driving car sensors
 
+#include <string>
+
 #include "processPointClouds.h"
 #include "render/render.h"
 #include "sensors/lidar.h"
@@ -173,6 +175,17 @@ void initCamera(CameraAngle setAngle,
 
 int main(int argc, char** argv) {
   std::cout << "starting enviroment" << std::endl;
+  std::string data;
+  if (argc != 2) {
+    data = "../src/sensors/data/pcd/data_1";
+  } else {
+    std::string ds(argv[1]);
+    if (ds != "data_1" && ds != "data_2") {
+      std::cout << "Choose one of 'data_1' or 'data_2'" << std::endl;
+      return 1;
+    }
+    data = "../src/sensors/data/pcd/" + ds;
+  }
 
   pcl::visualization::PCLVisualizer::Ptr viewer(
       new pcl::visualization::PCLVisualizer("3D Viewer"));
@@ -184,7 +197,7 @@ int main(int argc, char** argv) {
   ProcessPointClouds<pcl::PointXYZI>* pointProcessorI =
       new ProcessPointClouds<pcl::PointXYZI>();
   std::vector<boost::filesystem::path> stream =
-      pointProcessorI->streamPcd("../src/sensors/data/pcd/data_1");
+      pointProcessorI->streamPcd(data);
   auto streamIterator = stream.begin();
   pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloudI;
   //simpleHighway(viewer);

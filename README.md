@@ -42,6 +42,18 @@ You can then run the environment by just doing:
 $ ./environment
 ```
 
+I have modified the executable so that we can switch between the different datasets that is part of this assessment.  The datasets can be found in the `src/sensors/data/pcd` in the `SFND_Lidar_Obstacle_Detection` directory.  Just running `environment` will run the `data_1` dataset located in this directory.  You can additionally specify a string to choose between the different datasets in this directory:
+
+```
+$ ./environment data_1
+```
+
+or
+
+```
+$ ./environment data_2
+```
+
 ### RANSAC quiz
 
 The portion of the course that tests the implementation of 3D plane estimation using RANSAC can be built navigating to the `SFND_Lidar_Obstacle_Detection/src/quiz/ransac` directory and using the `CMakeLists.txt` file in that directory:
