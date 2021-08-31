@@ -54,9 +54,28 @@ or
 $ ./environment data_2
 ```
 
+### Mac OS X Modifications as of August 30, 2021
+
+Due to recent updates to Qt from Homebrew, Qt version 6 is the latest version that is released.  The LiDAR Obstacle Detection project requires Qt version 5 or else the project does not build successfully.
+Therefore, if you are using Mac OS to run this project, please make sure you uninstall Qt version 6, install Qt version 5 and establish the correct symlinks to allow the code to configure and build.
+
+In your terminal, please do the following:
+
+```
+$ brew uninstall qt
+$ brew install qt@5
+$ sudo ln -s /usr/local/Cellar/qt@5/5.15.2/mkspecs /usr/local/mkspecs
+$ sudo ln -s /usr/local/Cellar/qt@5/5.15.2/plugins /usr/local/plugins
+```
+
+The symlinks point the Qt version 5 libraries so that the project can find them.  Please modify the path to Qt version 5 so that it points to the correct `mkspecs` and `plugins` directories.
+
+In addition, I had to additionally add `#include <boost/filesystem.hpp>` to `processPointClouds.h` for the code to finally compile.
+
 ### RANSAC quiz
 
 The portion of the course that tests the implementation of 3D plane estimation using RANSAC can be built navigating to the `SFND_Lidar_Obstacle_Detection/src/quiz/ransac` directory and using the `CMakeLists.txt` file in that directory:
+
 
 ```
 $ cd SFND_Lidar_Obstacle_Detection/src/quiz/ransac
